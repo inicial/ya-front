@@ -24,14 +24,16 @@
         <v-data-table
           height="450"
           :headers="headers"
-          :items="filteredtableData"
-          :search="search"
+          :items="tableData"
+          :options.sync="options"
+          item-key="items.username"
+
+
           :page.sync="page"
           @page-count="pageCount = $event"
           :items-per-page="itemsPerPage"
-          :loading="!loading"
-          :sort-by="['name']"
-          :sort-desc="[false]"
+          :loading="loading"
+
           elevation="0"
           show-select
           fixed-header
@@ -44,23 +46,24 @@
             nextIcon: '',
           }"
         >
+
           <template v-slot:item.company="{ item }"
-            >{{ item.company }} [{{ item.email }}]</template
+            >{{ item.company }}</template
           >
 
-          <template v-slot:item.name="props"
+          <template v-slot:item.username="props"
             ><a @click="editUser(props.item)">{{
-              props.item.name
+              props.item.username
             }}</a></template
           >
 
-          <template v-slot:item.state="{ item }">
+          <template v-slot:item.online="{ item }">
             <v-icon
               color="green"
               size="18"
               text-color="white"
               class="ma-2"
-              v-if="item.state === 'true'"
+              v-if="item.online === true"
               >mdi-checkbox-blank-circle</v-icon
             >
 
@@ -69,23 +72,23 @@
               size="18"
               text-color="white"
               class="ma-2"
-              v-if="item.state === 'false'"
+              v-if="item.online === false"
               >mdi-cancel</v-icon
             >
           </template>
 
-          <template v-slot:item.firstName="{ item }">
+          <template v-slot:item.first_name="{ item }">
             <v-edit-dialog
-              :return-value.sync="item.firstName"
+              :return-value.sync="item.first_name"
               @save="save"
               @cancel="cancel"
               @open="open"
               @close="close"
             >
-              {{ item.firstName }}
+              {{ item.first_name }}
               <template v-slot:input>
                 <v-text-field
-                  v-model="item.firstName"
+                  v-model="item.first_name"
                   :rules="[max25chars]"
                   label="Edit"
                   single-line
@@ -145,19 +148,19 @@
                 <v-row>
                   <v-col cols="12" sm="6" md="4">
                     <v-text-field
-                      v-model="editedUser.name"
+                      v-model="editedUser.username"
                       label="Username"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6" md="4">
                     <v-text-field
-                      v-model="editedUser.firstName"
+                      v-model="editedUser.first_name"
                       label="First Name"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6" md="4">
                     <v-text-field
-                      v-model="editedUser.lastName"
+                      v-model="editedUser.last_name"
                       label="Last Name"
                     ></v-text-field>
                   </v-col>
@@ -215,31 +218,31 @@ export default {
       max25chars: (v) => v.length <= 25 || "Input too long!",
 
       page: 1,
-      timer: "",
       hidden: true,
       active: false,
       pageCount: 0,
       itemsPerPage: 10,
       search: "",
-      loading: false,
-      pagination: {
-        sortBy: "name",
+      loading: true,
+      options: {
+        sortBy: ["username"],
       },
+      totalData: 0,
       tableData: [],
 
       editedIndex: -1,
       editedUser: {
-        name: "",
-        firstName: "",
-        lastName: "",
+        username: "",
+        first_name: "",
+        last_name: "",
         email: "",
         company: "",
         role: "",
       },
       defaultUser: {
-        name: "",
-        firstName: "",
-        lastName: "",
+        username: "",
+        first_name: "",
+        last_name: "",
         email: "",
         company: "",
         role: "",
@@ -250,10 +253,6 @@ export default {
       modal: false,
       menu2: false,
 
-      filters: {
-        name: [],
-        lastName: [],
-      },
     };
   },
   head() {
@@ -266,29 +265,30 @@ export default {
       return [
         {
           text: "Username",
-          align: "start",
+          align: "center",
           sortable: true,
-          value: "name",
+          value: "username",
+          index: 0
         },
-        { text: "First Name", value: "firstName" },
-        { text: "Last Name", value: "lastName" },
-        { text: "eMail", value: "email" },
-        { text: "Role", value: "role" },
-        { text: "Company", value: "company" },
-        { text: "Online", value: "state" },
+        { text: "First Name", value: "first_name", align: "center", index: 1 },
+        { text: "Last Name", value: "last_name", align: "center", index: 2 },
+        { text: "eMail", value: "email", align: "center", index: 3 },
+        { text: "Role", value: "role", align: "center", index: 4 },
+        { text: "Company", value: "company", align: "center", index: 5 },
+        { text: "Online", value: "online", index: 6 },
       ];
     },
 
-    filteredtableData() {
-      return this.tableData.filter((d) => {
-        return Object.keys(this.filters).every((f) => {
-          return this.filters[f].length < 1 || this.filters[f].includes(d[f]);
-        });
-      });
-    },
     formTitle() {
       return this.editedIndex === -1 ? "User" : "Edit";
     },
+
+    params(nv) {
+            return {
+                ...this.options,
+                query: this.search
+            };
+        }
   },
 
   watch: {
@@ -298,34 +298,112 @@ export default {
     dialogDelete(val) {
       val || this.closeDelete();
     },
-  },
 
-  mounted() {
-    this.getUsers();
+    params: {
+      handler () {
+        this.getUsers()
+
+      },
+      deep: true,
+    },
+
+
   },
 
   methods: {
-    getUsers() {
-      this.$axios.get("http://localhost:4000/users").then((res) => {
-        this.tableData = res.data;
-        this.loading = true;
-      });
-    },
 
-    toggleAll() {
-      if (this.selected.length) this.selected = [];
-      else this.selected = this.filteredtableData.slice();
+    async getUsers() {
+      await this.$axios.post("http://localhost:5000/api/datatables/users", {
+    "draw": 1,
+    "columns": [
+        {
+            "data": "username",
+            "name": "",
+            "searchable": true,
+            "orderable": true,
+            "search": {
+                "value": this.search,
+                "regex": false
+            }
+        },
+        {
+            "data": "first_name",
+            "name": "",
+            "searchable": true,
+            "orderable": true,
+            "search": {
+                "value": this.search,
+                "regex": false
+            }
+        },
+        {
+            "data": "last_name",
+            "name": "",
+            "searchable": true,
+            "orderable": true,
+            "search": {
+                "value": this.search,
+                "regex": false
+            }
+        },
+        {
+            "data": "email",
+            "name": "",
+            "searchable": true,
+            "orderable": true,
+            "search": {
+                "value": this.search,
+                "regex": false
+            }
+        },
+        {
+            "data": "role",
+            "name": "",
+            "searchable": true,
+            "orderable": true,
+            "search": {
+                "value": this.search,
+                "regex": false
+            }
+        },
+        {
+            "data": "company",
+            "name": "",
+            "searchable": true,
+            "orderable": true,
+            "search": {
+                "value": this.search,
+                "regex": false
+            }
+        },
+        {
+            "data": "online",
+            "name": "",
+            "searchable": true,
+            "orderable": true,
+            "search": {
+                "value": this.search,
+                "regex": false
+            }
+        }
+    ],
+    "order": [
+        {
+            "column": this.headers.find(({ value }) => value === this.options.sortBy[0]).index,
+            "dir": this.options.sortDesc === false || this.options.sortDesc[0] === false? "desc": "asc"
+        }
+    ],
+    "start": 0,
+    "length": this.options.itemsPerPage,
+    "search": {
+        "value": this.search,
+        "regex": false
     },
-    changeSort(column) {
-      if (this.pagination.sortBy === column) {
-        this.pagination.descending = !this.pagination.descending;
-      } else {
-        this.pagination.sortBy = column;
-        this.pagination.descending = false;
-      }
-    },
-    columnValueList(val) {
-      return this.filteredtableData.map((d) => d[val]);
+    "optional": "null"
+}).then((res) => {
+        this.tableData = res.data.data;
+        this.loading = false;
+      });
     },
 
     save() {

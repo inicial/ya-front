@@ -5,7 +5,7 @@
       <v-container style="height: auto">
         <v-banner sticky
           ><v-icon slot="icon" size="36"> mdi-database-plus-outline </v-icon>
-          <h2>Dell Servers Jobs Archive</h2>
+          <h2>Vegman Servers Jobs Archive</h2>
           <h6 v-if="selectedRows.length != 0">
             <span v-if="selectedRows.length <= 1"
               >{{ selectedRows.length }} row selected</span
@@ -76,14 +76,14 @@
         <v-data-table
           height="450"
           :headers="headers"
-          :items="filteredtableData"
-          :search="search"
+          :items="tableData"
+
+          :options.sync="options"
           :page.sync="page"
           @page-count="pageCount = $event"
           :items-per-page="itemsPerPage"
-          :loading="!loading"
-          :sort-by="['date_start']"
-          :sort-desc="[false]"
+          :loading="loading"
+
           elevation="0"
           item-key="date_start"
           v-model="selectedRows"
@@ -138,8 +138,20 @@
                   v-if="item.result.toLowerCase() === 'failure'"
                 >
                   <v-icon size="18"> mdi-close-circle </v-icon>
-                  {{ item.result.toLowerCase() }}</v-chip
+                  <b>{{ item.result.toLowerCase() }}</b></v-chip
                 >
+
+<v-chip
+                  color="orange"
+                  small
+                  text-color="white"
+                  class="ma-2"
+                  v-if="item.result.toLowerCase() === 'error'"
+                >
+                  <v-icon size="18"> mdi-close-circle </v-icon>
+                  <b>{{ item.result.toLowerCase() }}</b></v-chip
+                >
+
                 <v-chip
                   color="secondary"
                   small
@@ -154,8 +166,20 @@
                     color="white"
                     :size="16"
                   ></v-progress-circular>
-                  {{ item.result }}
+                  <b>{{ item.result }}</b>
                 </v-chip>
+
+                <v-chip
+                  color="info"
+                  small
+                  text-color="white"
+                  class="ma-2"
+                  v-if="item.result.toLowerCase() === 'interrupted'"
+                  link
+                  to="/users"
+                >
+                  <v-icon size="18" > mdi-information </v-icon>
+                  <b>Stopped by {{item.stopper}}</b></v-chip>
               </td>
             </tr>
           </template>
@@ -357,9 +381,9 @@ export default {
       pageCount: 0,
       itemsPerPage: 10,
       search: "",
-      loading: false,
-      pagination: {
-        sortBy: "server_sn",
+      loading: true,
+      options: {
+        sortBy: ["date_start"],
       },
       nameList: [
         { text: "All", value: null },
@@ -379,7 +403,7 @@ export default {
       ],
       actionList: [
         { text: "All", value: null },
-        { text: "Flash MACs", value: "Flash MACs" },
+        { text: "Stress Test", value: "Stress Test" },
         { text: "Scan Inventory", value: "Scan Inventory" },
         { text: "Write FRU Data", value: "Write FRU Data" },
         { text: "Write VRM Data", value: "Write VRM Data" },
@@ -429,51 +453,202 @@ export default {
       return [
         {
           text: "Server",
-          align: "start",
+          align: "center",
           sortable: true,
           value: "server_sn",
+          index: 0
         },
-        { text: "Motherboard", value: "mbd_sn" },
-        { text: "Model", value: "server_model", filter: this.modelFilter },
-        { text: "Start", value: "date_start", filter: this.startFilter },
-        { text: "Started by", value: "starter", filter: this.nameFilter },
-        { text: "Stop", value: "date_stop", filter: this.stopFilter },
-        { text: "Action", value: "action", filter: this.actionFilter },
-        { text: "Order", value: "order", filter: this.orderFilter },
-        { text: "SELs", value: "sel_logs", filterable: false },
-        { text: "Result", value: "result", filter: this.resultFilter },
+        { text: "Motherboard", align: "center", value: "mbd_sn", index: 1 },
+        { text: "Model", align: "center", value: "server_model", filter: this.modelFilter, index: 2 },
+        { text: "Start", align: "center", value: "date_start", filter: this.startFilter, index: 3 },
+        { text: "Started by", align: "center", value: "starter", filter: this.nameFilter, index: 4 },
+        { text: "Stop", align: "center", value: "date_stop", filter: this.stopFilter, index: 5 },
+        { text: "Action", align: "center", value: "action", filter: this.actionFilter, index: 6 },
+        { text: "Order", align: "center", value: "order", filter: this.orderFilter, index: 7 },
+        { text: "SELs", align: "center", value: "sel_logs", filterable: false, index: 8 },
+        { text: "Result", align: "center", value: "result", filter: this.resultFilter, index: 9 },
       ];
     },
 
-    filteredtableData() {
-      return this.tableData.filter((d) => {
-        return Object.keys(this.filters).every((f) => {
-          return this.filters[f].length < 1 || this.filters[f].includes(d[f]);
-        });
-      });
+    // filteredtableData() {
+    //   return this.tableData.filter((d) => {
+    //     return Object.keys(this.filters).every((f) => {
+    //       return this.filters[f].length < 1 || this.filters[f].includes(d[f]);
+    //     });
+    //   });
+    // },
+
+    params(nv) {
+            return {
+                ...this.options,
+                query: this.search
+            };
+        }
+  },
+
+  watch: {
+    dialog(val) {
+      val || this.close();
     },
+    dialogDelete(val) {
+      val || this.closeDelete();
+    },
+
+    params: {
+      handler () {
+        this.getJobs()
+
+      },
+      deep: true,
+    },
+
+
   },
 
   mounted() {
-    this.$axios.get("http://localhost:4000/jobs").then((res) => {
-      this.tableData = res.data;
-      this.loading = true;
-    });
+    // this.$axios.get("http://localhost:4000/jobs").then((res) => {
+    //   this.tableData = res.data;
+    //   this.loading = true;
+    // });
+
   },
 
   methods: {
-    toggleAll() {
-      if (this.selected.length) this.selected = [];
-      else this.selected = this.filteredtableData.slice();
+
+async getJobs(){
+    await this.$axios.post("http://localhost:5000/api/datatables/jobs", {
+    "draw": 1,
+    "columns": [
+        {
+            "data": "server_sn",
+            "name": "",
+            "searchable": true,
+            "orderable": true,
+            "search": {
+                "value": "",
+                "regex": false
+            }
+        },
+        {
+            "data": "mbd_sn",
+            "name": "",
+            "searchable": true,
+            "orderable": true,
+            "search": {
+                "value": "",
+                "regex": false
+            }
+        },
+        {
+            "data": "server_model",
+            "name": "",
+            "searchable": true,
+            "orderable": true,
+            "search": {
+                "value": "",
+                "regex": false
+            }
+        },
+        {
+            "data": "stand",
+            "name": "",
+            "searchable": true,
+            "orderable": true,
+            "search": {
+                "value": "",
+                "regex": false
+            }
+        },
+        {
+            "data": "start",
+            "name": "",
+            "searchable": true,
+            "orderable": true,
+            "search": {
+                "value": "",
+                "regex": false
+            }
+        },
+        {
+            "data": "starter",
+            "name": "",
+            "searchable": true,
+            "orderable": true,
+            "search": {
+                "value": "",
+                "regex": false
+            }
+        },
+        {
+            "data": "stop",
+            "name": "",
+            "searchable": true,
+            "orderable": true,
+            "search": {
+                "value": "",
+                "regex": false
+            }
+        },
+        {
+            "data": "action",
+            "name": "",
+            "searchable": true,
+            "orderable": true,
+            "search": {
+                "value": "",
+                "regex": false
+            }
+        },
+        {
+            "data": "order",
+            "name": "",
+            "searchable": true,
+            "orderable": true,
+            "search": {
+                "value": "",
+                "regex": false
+            }
+        },
+        {
+            "data": "sel_logs",
+            "name": "",
+            "searchable": true,
+            "orderable": true,
+            "search": {
+                "value": "",
+                "regex": false
+            }
+        },
+        {
+            "data": "result",
+            "name": "",
+            "searchable": true,
+            "orderable": true,
+            "search": {
+                "value": "",
+                "regex": false
+            }
+        }
+    ],
+    "order": [
+        {
+            "column": this.headers.find(({ value }) => value === this.options.sortBy[0]).index,
+            "dir": this.options.sortDesc === false || this.options.sortDesc[0] === false? "desc": "asc"
+        }
+    ],
+    "start": 0,
+    "length": 15,
+    "search": {
+        "value": "",
+        "regex": false
     },
-    changeSort(column) {
-      if (this.pagination.sortBy === column) {
-        this.pagination.descending = !this.pagination.descending;
-      } else {
-        this.pagination.sortBy = column;
-        this.pagination.descending = false;
-      }
-    },
+    "optional": ""
+    }).then((res) => {
+      this.tableData = res.data.data;
+      this.loading = false;
+    });
+},
+
     columnValueList(val) {
       return this.filteredtableData.map((d) => d[val]);
     },

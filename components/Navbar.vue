@@ -48,9 +48,9 @@
           tile
           class="mb-0"
           link
-          to="/servers"
+          to="/vegmans_list"
         >
-          Servers
+          Vegmans List
         </v-btn>
       </template>
 
@@ -143,12 +143,12 @@
       </v-menu>
 
       <v-spacer />
-      <v-spacer></v-spacer>
-      <v-spacer></v-spacer>
+      <v-spacer />
+      <v-spacer />
 
       <v-list-item-content class="float-right">
         <v-list-item-title style="font-size: 12px; font-weight: bold"
-          >DAT</v-list-item-title
+          >VAT</v-list-item-title
         >
         <v-list-item-subtitle style="font-size: 10px">
           <v-tooltip bottom>
@@ -162,16 +162,16 @@
         </v-list-item-subtitle>
       </v-list-item-content>
 
-      <v-divider class="mx-6" inset vertical></v-divider>
+      <v-divider class="mx-6" inset vertical v-if="$auth.loggedIn"></v-divider>
 
-      <v-list-item-content style="text-align: center">
+      <v-list-item-content style="text-align: center" v-if="$auth.loggedIn">
         <v-list-item-title style="font-size: 12px">
           <v-icon slot="icon" size="18"> mdi-account </v-icon
-          >{{ this.username }}</v-list-item-title
+          >{{ $auth.user.name }}</v-list-item-title
         >
       </v-list-item-content>
 
-      <v-divider class="mx-6" inset vertical></v-divider>
+      <v-divider class="mx-6" inset vertical v-if="$auth.loggedIn"></v-divider>
 
       <template>
         <v-btn
@@ -182,11 +182,12 @@
           class="mb-0"
           link
           to="/logout"
+          v-if="$auth.loggedIn"
         >
           Logout
         </v-btn>
 
-        <v-divider class="mx-6" inset vertical></v-divider>
+        <v-divider class="mx-6" inset vertical v-if="$auth.loggedIn"></v-divider>
 
         <v-switch
           v-model="$vuetify.theme.dark"

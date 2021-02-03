@@ -19,6 +19,10 @@ export default {
     ]
   },
 
+  env: {
+    HOST_URL: process.env.HOST_URL || 'http://127.0.0.1:5000'
+  },
+
   css: [
   ],
 
@@ -37,9 +41,16 @@ export default {
   modules: [
     '@nuxtjs/axios',
     '@nuxtjs/pwa',
+    '@nuxtjs/auth-next'
   ],
 
   axios: {},
+
+  auth: {},
+
+  router: {
+    // middleware: ['auth']
+  },
 
   pwa: {
     manifest: {
