@@ -39,7 +39,7 @@
           <v-btn
             tile
             class="mb-4"
-            @click="hidden = !hidden"
+            @click="getFiltersData"
             elevation="0"
             outlined
             x-small
@@ -440,37 +440,11 @@ export default {
       options: {
         sortBy: ["date_start"],
       },
-      nameList: [
-        { text: "All", value: null },
-        { text: "assembly", value: "assembly" },
-        { text: "r.mordvinov", value: "r.mordvinov" },
-      ],
-
-      modelList: [
-        { text: "All", value: null },
-        { text: "VEGMAN Barebone Server", value: "VEGMAN Barebone Server" },
-        { text: "MFI", value: "MFI" },
-      ],
-      orderList: [
-        { text: "All", value: null },
-        { text: "Rev.E 1890 pcs", value: "Rev.E 1890 pcs" },
-        { text: "yadro", value: "yadro" },
-        { text: "None", value: "None" },
-      ],
-      actionList: [
-        { text: "All", value: null },
-        { text: "Stress Test", value: "Stress Test" },
-        { text: "Scan Inventory", value: "Scan Inventory" },
-        { text: "Write FRU Data", value: "Write FRU Data" },
-        { text: "Write VRM Data", value: "Write VRM Data" },
-      ],
-      resultList: [
-        { text: "All", value: null },
-        { text: "RUNNING", value: "running" },
-        { text: "SUCCESS", value: "SUCCESS" },
-        { text: "FAILURE", value: "FAILURE" },
-        { text: "INTERRUPTED", value: "INTERRUPTED" },
-      ],
+      nameList: [{ text: "All", value: null }],
+      modelList: [{ text: "All", value: null }],
+      orderList: [{ text: "All", value: null }],
+      actionList: [{ text: "All", value: null }],
+      resultList: [{ text: "All", value: null }],
       tableData: [],
 
       date: "",
@@ -755,6 +729,45 @@ export default {
           this.tableData = res.data.data;
           this.loading = false;
         });
+    },
+
+    getFiltersData() {
+      this.hidden = !this.hidden;
+
+      let server_models = [];
+      let started_by = [];
+      let actions = [];
+      let orders = [];
+      let results = [];
+
+      this.tableData.forEach(function (item) {
+        server_models.push({
+          text: item.server_model,
+          value: item.server_model,
+        });
+      });
+
+      this.tableData.forEach(function (item) {
+        started_by.push({ text: item.starter, value: item.starter });
+      });
+
+      this.tableData.forEach(function (item) {
+        actions.push({ text: item.action, value: item.action });
+      });
+
+      this.tableData.forEach(function (item) {
+        orders.push({ text: item.order, value: item.order });
+      });
+
+      this.tableData.forEach(function (item) {
+        results.push({ text: item.result, value: item.result });
+      });
+
+      this.modelList = this.modelList.concat(server_models);
+      this.nameList = this.nameList.concat(started_by);
+      this.actionList = this.actionList.concat(actions);
+      this.orderList = this.orderList.concat(orders);
+      this.resultList = this.orderList.concat(results);
     },
 
     columnValueList(val) {
