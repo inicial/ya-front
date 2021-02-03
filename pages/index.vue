@@ -215,11 +215,15 @@
               <td></td>
 
               <td class="filter-item">
-                <v-select
+                <v-overflow-btn
+                  class="my-2"
                   :items="modelList"
                   label="Filter by model"
                   v-model="modelFilterValue"
-                ></v-select>
+                  editable
+                  dense
+                  hint="Select Vegman Server model"
+                ></v-overflow-btn>
               </td>
 
               <td class="filter-item">
@@ -241,10 +245,15 @@
                       v-on="on"
                       @change="stopFilter"
                       clearable
+                      dense
                       @click:clear="dateStartFilterValue = null"
                     ></v-text-field>
                   </template>
                   <v-date-picker
+                    width="260"
+                    no-title
+                    scrollable
+                    locale="ru-ru"
                     v-model="dateStartFilterValue"
                     @input="menu2 = false"
                     @change="stopFilter"
@@ -253,11 +262,15 @@
               </td>
 
               <td class="filter-item">
-                <v-select
+                <v-overflow-btn
+                  class="my-2"
                   :items="nameList"
                   label="Filter by user"
                   v-model="nameFilterValue"
-                ></v-select>
+                  editable
+                  dense
+                  hint="Select username"
+                ></v-overflow-btn>
               </td>
 
               <td class="filter-item">
@@ -279,10 +292,15 @@
                       v-on="on"
                       @change="stopFilter"
                       clearable
+                      dense
                       @click:clear="dateStopFilterValue = null"
                     ></v-text-field>
                   </template>
                   <v-date-picker
+                    width="260"
+                    no-title
+                    scrollable
+                    locale="ru-ru"
                     v-model="dateStopFilterValue"
                     @input="menu = false"
                     @change="stopFilter"
@@ -291,29 +309,41 @@
               </td>
 
               <td class="filter-item">
-                <v-select
-                  v-model="actionFilterValue"
+                <v-overflow-btn
+                  class="my-2"
                   :items="actionList"
                   label="Filter by action"
-                ></v-select>
+                  v-model="actionFilterValue"
+                  editable
+                  dense
+                  hint="Select action"
+                ></v-overflow-btn>
               </td>
 
               <td class="filter-item">
-                <v-select
-                  v-model="orderFilterValue"
+                <v-overflow-btn
+                  class="my-2"
                   :items="orderList"
                   label="Filter by order"
-                ></v-select>
+                  v-model="orderFilterValue"
+                  editable
+                  dense
+                  hint="Select order"
+                ></v-overflow-btn>
               </td>
 
               <td class="filter-item"></td>
 
               <td class="filter-item">
-                <v-select
-                  v-model="resultFilterValue"
+                <v-overflow-btn
+                  class="my-2"
                   :items="resultList"
                   label="Filter by result"
-                ></v-select>
+                  v-model="resultFilterValue"
+                  editable
+                  dense
+                  hint="Select result"
+                ></v-overflow-btn>
               </td>
             </tr>
           </template>
@@ -413,7 +443,7 @@ export default {
       nameList: [
         { text: "All", value: null },
         { text: "assembly", value: "assembly" },
-        { text: "test", value: "test" },
+        { text: "r.mordvinov", value: "r.mordvinov" },
       ],
 
       modelList: [
@@ -425,6 +455,7 @@ export default {
         { text: "All", value: null },
         { text: "Rev.E 1890 pcs", value: "Rev.E 1890 pcs" },
         { text: "yadro", value: "yadro" },
+        { text: "None", value: "None" },
       ],
       actionList: [
         { text: "All", value: null },
@@ -438,6 +469,7 @@ export default {
         { text: "RUNNING", value: "running" },
         { text: "SUCCESS", value: "SUCCESS" },
         { text: "FAILURE", value: "FAILURE" },
+        { text: "INTERRUPTED", value: "INTERRUPTED" },
       ],
       tableData: [],
 
