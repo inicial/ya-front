@@ -77,13 +77,11 @@
           height="450"
           :headers="headers"
           :items="tableData"
-
           :options.sync="options"
           :page.sync="page"
           @page-count="pageCount = $event"
           :items-per-page="itemsPerPage"
           :loading="loading"
-
           elevation="0"
           item-key="date_start"
           v-model="selectedRows"
@@ -106,80 +104,107 @@
               "
               @click="rowClicked(item)"
             >
-              <td>{{ item.server_sn }}</td>
               <td>
-                <a>{{ item.mbd_sn }}</a>
-              </td>
-              <td>{{ item.server_model }}</td>
-              <td>{{ $moment(item.date_start).format("YYYY-MM-DD hh:mm:ss") }}</td>
-              <td>{{ item.starter }}</td>
-              <td>{{ $moment(item.date_stop).format("YYYY-MM-DD hh:mm:ss") }}</td>
-              <td>{{ item.action }}</td>
-              <td>[{{ item.server_sn }}] {{ item.order }}</td>
-              <td>
-                <a href="/job_sels">{{ item.sel_logs }}</a>
+                <v-layout justify-center>{{ item.server_sn }}</v-layout>
               </td>
               <td>
-                <v-chip
-                  color="green"
-                  small
-                  text-color="white"
-                  class="ma-2"
-                  v-if="item.result.toLowerCase() === 'success'"
+                <v-layout justify-center>
+                  <a>{{ item.mbd_sn }}</a>
+                </v-layout>
+              </td>
+              <td>
+                <v-layout justify-center>{{ item.server_model }}</v-layout>
+              </td>
+              <td>
+                <v-layout justify-center>{{
+                  $moment(item.date_start).format("YYYY-MM-DD hh:mm:ss")
+                }}</v-layout>
+              </td>
+              <td>
+                <v-layout justify-center>{{ item.starter }}</v-layout>
+              </td>
+              <td>
+                <v-layout justify-center>{{
+                  $moment(item.date_stop).format("YYYY-MM-DD hh:mm:ss")
+                }}</v-layout>
+              </td>
+              <td>
+                <v-layout justify-center>{{ item.action }}</v-layout>
+              </td>
+              <td>
+                <v-layout justify-center
+                  >[{{ item.server_sn }}] {{ item.order }}</v-layout
                 >
-                  <v-icon size="18"> mdi-check-circle </v-icon>
-                  {{ item.result.toLowerCase() }}</v-chip
-                >
-                <v-chip
-                  color="error"
-                  small
-                  text-color="white"
-                  class="ma-2"
-                  v-if="item.result.toLowerCase() === 'failure'"
-                >
-                  <v-icon size="18"> mdi-close-circle </v-icon>
-                  <b>{{ item.result.toLowerCase() }}</b></v-chip
-                >
+              </td>
+              <td>
+                <v-layout justify-center>
+                  <a href="/job_sels">{{ item.sel_logs }}</a>
+                </v-layout>
+              </td>
+              <td>
+                <v-layout justify-center>
+                  <v-chip
+                    color="green"
+                    small
+                    text-color="white"
+                    class="ma-2"
+                    v-if="item.result.toLowerCase() === 'success'"
+                  >
+                    <v-icon size="18"> mdi-check-circle </v-icon>
+                    {{ item.result.toLowerCase() }}</v-chip
+                  >
+                  <v-chip
+                    color="error"
+                    small
+                    text-color="white"
+                    class="ma-2"
+                    v-if="item.result.toLowerCase() === 'failure'"
+                  >
+                    <v-icon size="18"> mdi-close-circle </v-icon>
+                    <b>{{ item.result.toLowerCase() }}</b></v-chip
+                  >
 
-<v-chip
-                  color="orange"
-                  small
-                  text-color="white"
-                  class="ma-2"
-                  v-if="item.result.toLowerCase() === 'error'"
-                >
-                  <v-icon size="18"> mdi-close-circle </v-icon>
-                  <b>{{ item.result.toLowerCase() }}</b></v-chip
-                >
+                  <v-chip
+                    color="orange"
+                    small
+                    text-color="white"
+                    class="ma-2"
+                    v-if="item.result.toLowerCase() === 'error'"
+                  >
+                    <v-icon size="18"> mdi-close-circle </v-icon>
+                    <b>{{ item.result.toLowerCase() }}</b></v-chip
+                  >
 
-                <v-chip
-                  color="secondary"
-                  small
-                  text-color="white"
-                  class="ma-2"
-                  v-if="item.result.toLowerCase() === 'running'"
-                  link
-                  to="/users"
-                >
-                  <v-progress-circular
-                    indeterminate
-                    color="white"
-                    :size="16"
-                  ></v-progress-circular>
-                  <b>{{ item.result }}</b>
-                </v-chip>
+                  <v-chip
+                    color="secondary"
+                    small
+                    text-color="white"
+                    class="ma-2"
+                    v-if="item.result.toLowerCase() === 'running'"
+                    link
+                    to="/users"
+                  >
+                    <v-progress-circular
+                      indeterminate
+                      color="white"
+                      :size="16"
+                    ></v-progress-circular>
+                    <b>{{ item.result }}</b>
+                  </v-chip>
 
-                <v-chip
-                  color="info"
-                  small
-                  text-color="white"
-                  class="ma-2"
-                  v-if="item.result.toLowerCase() === 'interrupted'"
-                  link
-                  to="/users"
-                >
-                  <v-icon size="18" > mdi-information </v-icon>
-                  <b>Stopped by {{item.stopper}}</b></v-chip>
+                  <v-chip
+                    color="info"
+                    small
+                    text-color="white"
+                    class="ma-2"
+                    v-if="item.result.toLowerCase() === 'interrupted'"
+                    link
+                    to="/users"
+                  >
+                    <v-icon size="18"> mdi-information </v-icon>
+                    <b>Stopped by {{ item.stopper }}</b></v-chip
+                  >
+                </v-layout>
               </td>
             </tr>
           </template>
@@ -456,17 +481,65 @@ export default {
           align: "center",
           sortable: true,
           value: "server_sn",
-          index: 0
+          index: 0,
         },
         { text: "Motherboard", align: "center", value: "mbd_sn", index: 1 },
-        { text: "Model", align: "center", value: "server_model", filter: this.modelFilter, index: 2 },
-        { text: "Start", align: "center", value: "date_start", filter: this.startFilter, index: 3 },
-        { text: "Started by", align: "center", value: "starter", filter: this.nameFilter, index: 4 },
-        { text: "Stop", align: "center", value: "date_stop", filter: this.stopFilter, index: 5 },
-        { text: "Action", align: "center", value: "action", filter: this.actionFilter, index: 6 },
-        { text: "Order", align: "center", value: "order", filter: this.orderFilter, index: 7 },
-        { text: "SELs", align: "center", value: "sel_logs", filterable: false, index: 8 },
-        { text: "Result", align: "center", value: "result", filter: this.resultFilter, index: 9 },
+        {
+          text: "Model",
+          align: "center",
+          value: "server_model",
+          filter: this.modelFilter,
+          index: 2,
+        },
+        {
+          text: "Start",
+          align: "center",
+          value: "date_start",
+          filter: this.startFilter,
+          index: 3,
+        },
+        {
+          text: "Started by",
+          align: "center",
+          value: "starter",
+          filter: this.nameFilter,
+          index: 4,
+        },
+        {
+          text: "Stop",
+          align: "center",
+          value: "date_stop",
+          filter: this.stopFilter,
+          index: 5,
+        },
+        {
+          text: "Action",
+          align: "center",
+          value: "action",
+          filter: this.actionFilter,
+          index: 6,
+        },
+        {
+          text: "Order",
+          align: "center",
+          value: "order",
+          filter: this.orderFilter,
+          index: 7,
+        },
+        {
+          text: "SELs",
+          align: "center",
+          value: "sel_logs",
+          filterable: false,
+          index: 8,
+        },
+        {
+          text: "Result",
+          align: "center",
+          value: "result",
+          filter: this.resultFilter,
+          index: 9,
+        },
       ];
     },
 
@@ -479,11 +552,11 @@ export default {
     // },
 
     params(nv) {
-            return {
-                ...this.options,
-                query: this.search
-            };
-        }
+      return {
+        ...this.options,
+        query: this.search,
+      };
+    },
   },
 
   watch: {
@@ -495,14 +568,11 @@ export default {
     },
 
     params: {
-      handler () {
-        this.getJobs()
-
+      handler() {
+        this.getJobs();
       },
       deep: true,
     },
-
-
   },
 
   mounted() {
@@ -510,144 +580,150 @@ export default {
     //   this.tableData = res.data;
     //   this.loading = true;
     // });
-
   },
 
   methods: {
-
-async getJobs(){
-    await this.$axios.post("http://localhost:5000/api/datatables/jobs", {
-    "draw": 1,
-    "columns": [
-        {
-            "data": "server_sn",
-            "name": "",
-            "searchable": true,
-            "orderable": true,
-            "search": {
-                "value": "",
-                "regex": false
-            }
-        },
-        {
-            "data": "mbd_sn",
-            "name": "",
-            "searchable": true,
-            "orderable": true,
-            "search": {
-                "value": "",
-                "regex": false
-            }
-        },
-        {
-            "data": "server_model",
-            "name": "",
-            "searchable": true,
-            "orderable": true,
-            "search": {
-                "value": "",
-                "regex": false
-            }
-        },
-        {
-            "data": "stand",
-            "name": "",
-            "searchable": true,
-            "orderable": true,
-            "search": {
-                "value": "",
-                "regex": false
-            }
-        },
-        {
-            "data": "start",
-            "name": "",
-            "searchable": true,
-            "orderable": true,
-            "search": {
-                "value": "",
-                "regex": false
-            }
-        },
-        {
-            "data": "starter",
-            "name": "",
-            "searchable": true,
-            "orderable": true,
-            "search": {
-                "value": "",
-                "regex": false
-            }
-        },
-        {
-            "data": "stop",
-            "name": "",
-            "searchable": true,
-            "orderable": true,
-            "search": {
-                "value": "",
-                "regex": false
-            }
-        },
-        {
-            "data": "action",
-            "name": "",
-            "searchable": true,
-            "orderable": true,
-            "search": {
-                "value": "",
-                "regex": false
-            }
-        },
-        {
-            "data": "order",
-            "name": "",
-            "searchable": true,
-            "orderable": true,
-            "search": {
-                "value": "",
-                "regex": false
-            }
-        },
-        {
-            "data": "sel_logs",
-            "name": "",
-            "searchable": true,
-            "orderable": true,
-            "search": {
-                "value": "",
-                "regex": false
-            }
-        },
-        {
-            "data": "result",
-            "name": "",
-            "searchable": true,
-            "orderable": true,
-            "search": {
-                "value": "",
-                "regex": false
-            }
-        }
-    ],
-    "order": [
-        {
-            "column": this.headers.find(({ value }) => value === this.options.sortBy[0]).index,
-            "dir": this.options.sortDesc === false || this.options.sortDesc[0] === false? "desc": "asc"
-        }
-    ],
-    "start": 0,
-    "length": 15,
-    "search": {
-        "value": "",
-        "regex": false
+    async getJobs() {
+      await this.$axios
+        .post("http://localhost:5000/api/datatables/jobs", {
+          draw: 1,
+          columns: [
+            {
+              data: "server_sn",
+              name: "",
+              searchable: true,
+              orderable: true,
+              search: {
+                value: "",
+                regex: false,
+              },
+            },
+            {
+              data: "mbd_sn",
+              name: "",
+              searchable: true,
+              orderable: true,
+              search: {
+                value: "",
+                regex: false,
+              },
+            },
+            {
+              data: "server_model",
+              name: "",
+              searchable: true,
+              orderable: true,
+              search: {
+                value: "",
+                regex: false,
+              },
+            },
+            {
+              data: "stand",
+              name: "",
+              searchable: true,
+              orderable: true,
+              search: {
+                value: "",
+                regex: false,
+              },
+            },
+            {
+              data: "start",
+              name: "",
+              searchable: true,
+              orderable: true,
+              search: {
+                value: "",
+                regex: false,
+              },
+            },
+            {
+              data: "starter",
+              name: "",
+              searchable: true,
+              orderable: true,
+              search: {
+                value: "",
+                regex: false,
+              },
+            },
+            {
+              data: "stop",
+              name: "",
+              searchable: true,
+              orderable: true,
+              search: {
+                value: "",
+                regex: false,
+              },
+            },
+            {
+              data: "action",
+              name: "",
+              searchable: true,
+              orderable: true,
+              search: {
+                value: "",
+                regex: false,
+              },
+            },
+            {
+              data: "order",
+              name: "",
+              searchable: true,
+              orderable: true,
+              search: {
+                value: "",
+                regex: false,
+              },
+            },
+            {
+              data: "sel_logs",
+              name: "",
+              searchable: true,
+              orderable: true,
+              search: {
+                value: "",
+                regex: false,
+              },
+            },
+            {
+              data: "result",
+              name: "",
+              searchable: true,
+              orderable: true,
+              search: {
+                value: "",
+                regex: false,
+              },
+            },
+          ],
+          order: [
+            {
+              column: this.headers.find(
+                ({ value }) => value === this.options.sortBy[0]
+              ).index,
+              dir:
+                this.options.sortDesc === false ||
+                this.options.sortDesc[0] === false
+                  ? "desc"
+                  : "asc",
+            },
+          ],
+          start: 0,
+          length: 15,
+          search: {
+            value: "",
+            regex: false,
+          },
+          optional: "",
+        })
+        .then((res) => {
+          this.tableData = res.data.data;
+          this.loading = false;
+        });
     },
-    "optional": ""
-    }).then((res) => {
-      this.tableData = res.data.data;
-      this.loading = false;
-    });
-},
 
     columnValueList(val) {
       return this.filteredtableData.map((d) => d[val]);
@@ -689,7 +765,7 @@ async getJobs(){
         return true;
       }
       value = this.$moment(value).format("YYYY-MM-DD");
-      console.log(value)
+      console.log(value);
       return value === this.dateStopFilterValue;
     },
     resultFilter(value) {
@@ -763,6 +839,10 @@ async getJobs(){
   right: 20px;
   z-index: 1;
   position: absolute;
+}
+
+.v-data-table-header th {
+  text-transform: uppercase;
 }
 
 .theme--light.v-data-table .v-data-footer {

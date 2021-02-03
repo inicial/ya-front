@@ -27,13 +27,10 @@
           :items="tableData"
           :options.sync="options"
           item-key="items.username"
-
-
           :page.sync="page"
           @page-count="pageCount = $event"
           :items-per-page="itemsPerPage"
           :loading="loading"
-
           elevation="0"
           show-select
           fixed-header
@@ -46,10 +43,7 @@
             nextIcon: '',
           }"
         >
-
-          <template v-slot:item.company="{ item }"
-            >{{ item.company }}</template
-          >
+          <template v-slot:item.company="{ item }">{{ item.company }}</template>
 
           <template v-slot:item.username="props"
             ><a @click="editUser(props.item)">{{
@@ -252,7 +246,6 @@ export default {
       menu: false,
       modal: false,
       menu2: false,
-
     };
   },
   head() {
@@ -268,7 +261,7 @@ export default {
           align: "center",
           sortable: true,
           value: "username",
-          index: 0
+          index: 0,
         },
         { text: "First Name", value: "first_name", align: "center", index: 1 },
         { text: "Last Name", value: "last_name", align: "center", index: 2 },
@@ -284,11 +277,11 @@ export default {
     },
 
     params(nv) {
-            return {
-                ...this.options,
-                query: this.search
-            };
-        }
+      return {
+        ...this.options,
+        query: this.search,
+      };
+    },
   },
 
   watch: {
@@ -300,110 +293,114 @@ export default {
     },
 
     params: {
-      handler () {
-        this.getUsers()
-
+      handler() {
+        this.getUsers();
       },
       deep: true,
     },
-
-
   },
 
   methods: {
-
     async getUsers() {
-      await this.$axios.post("http://localhost:5000/api/datatables/users", {
-    "draw": 1,
-    "columns": [
-        {
-            "data": "username",
-            "name": "",
-            "searchable": true,
-            "orderable": true,
-            "search": {
-                "value": this.search,
-                "regex": false
-            }
-        },
-        {
-            "data": "first_name",
-            "name": "",
-            "searchable": true,
-            "orderable": true,
-            "search": {
-                "value": this.search,
-                "regex": false
-            }
-        },
-        {
-            "data": "last_name",
-            "name": "",
-            "searchable": true,
-            "orderable": true,
-            "search": {
-                "value": this.search,
-                "regex": false
-            }
-        },
-        {
-            "data": "email",
-            "name": "",
-            "searchable": true,
-            "orderable": true,
-            "search": {
-                "value": this.search,
-                "regex": false
-            }
-        },
-        {
-            "data": "role",
-            "name": "",
-            "searchable": true,
-            "orderable": true,
-            "search": {
-                "value": this.search,
-                "regex": false
-            }
-        },
-        {
-            "data": "company",
-            "name": "",
-            "searchable": true,
-            "orderable": true,
-            "search": {
-                "value": this.search,
-                "regex": false
-            }
-        },
-        {
-            "data": "online",
-            "name": "",
-            "searchable": true,
-            "orderable": true,
-            "search": {
-                "value": this.search,
-                "regex": false
-            }
-        }
-    ],
-    "order": [
-        {
-            "column": this.headers.find(({ value }) => value === this.options.sortBy[0]).index,
-            "dir": this.options.sortDesc === false || this.options.sortDesc[0] === false? "desc": "asc"
-        }
-    ],
-    "start": 0,
-    "length": this.options.itemsPerPage,
-    "search": {
-        "value": this.search,
-        "regex": false
-    },
-    "optional": "null"
-}).then((res) => {
-        this.tableData = res.data.data;
-        this.loading = false;
-      });
+      await this.$axios
+        .post("http://localhost:5000/api/datatables/users", {
+          draw: 1,
+          columns: [
+            {
+              data: "username",
+              name: "",
+              searchable: true,
+              orderable: true,
+              search: {
+                value: this.search,
+                regex: false,
+              },
+            },
+            {
+              data: "first_name",
+              name: "",
+              searchable: true,
+              orderable: true,
+              search: {
+                value: this.search,
+                regex: false,
+              },
+            },
+            {
+              data: "last_name",
+              name: "",
+              searchable: true,
+              orderable: true,
+              search: {
+                value: this.search,
+                regex: false,
+              },
+            },
+            {
+              data: "email",
+              name: "",
+              searchable: true,
+              orderable: true,
+              search: {
+                value: this.search,
+                regex: false,
+              },
+            },
+            {
+              data: "role",
+              name: "",
+              searchable: true,
+              orderable: true,
+              search: {
+                value: this.search,
+                regex: false,
+              },
+            },
+            {
+              data: "company",
+              name: "",
+              searchable: true,
+              orderable: true,
+              search: {
+                value: this.search,
+                regex: false,
+              },
+            },
+            {
+              data: "online",
+              name: "",
+              searchable: true,
+              orderable: true,
+              search: {
+                value: this.search,
+                regex: false,
+              },
+            },
+          ],
+          order: [
+            {
+              column: this.headers.find(
+                ({ value }) => value === this.options.sortBy[0]
+              ).index,
+              dir:
+                this.options.sortDesc === false ||
+                this.options.sortDesc[0] === false
+                  ? "desc"
+                  : "asc",
+            },
+          ],
+          start: 0,
+          length: this.options.itemsPerPage,
+          search: {
+            value: this.search,
+            regex: false,
+          },
+          optional: "null",
+        })
+        .then((res) => {
+          this.tableData = res.data.data;
+          this.loading = false;
+        });
     },
 
     save() {
