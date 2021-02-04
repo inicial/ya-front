@@ -22,7 +22,7 @@
             elevation="0"
             outlined
             x-small
-            @click="resultFilterValue = ''"
+            @click="optional = ''"
             >All</v-btn
           >
           <v-btn
@@ -31,7 +31,7 @@
             elevation="0"
             outlined
             x-small
-            @click="resultFilterValue = 'running'"
+            @click="optional = 'running'"
           >
             Running</v-btn
           >
@@ -313,10 +313,9 @@
                   class="my-2"
                   :items="actionList"
                   label="Filter by action"
-                  v-model="actionFilterValue"
+                  v-model="action"
                   editable
                   dense
-                  hint="Select action"
                 ></v-overflow-btn>
               </td>
 
@@ -339,10 +338,9 @@
                   class="my-2"
                   :items="resultList"
                   label="Filter by result"
-                  v-model="resultFilterValue"
+                  v-model="result"
                   editable
                   dense
-                  hint="Select result"
                 ></v-overflow-btn>
               </td>
             </tr>
@@ -424,6 +422,10 @@
 export default {
   data() {
     return {
+      result: "",
+      action: "",
+      optional: "",
+
       snack: false,
       snackColor: "",
       snackText: "",
@@ -457,10 +459,10 @@ export default {
       modelFilterValue: null,
       dateStartFilterValue: null,
       dateStopFilterValue: null,
-      resultFilterValue: null,
+      resultFilterValue: "",
       orderFilterValue: null,
       companyFilterValue: null,
-      actionFilterValue: null,
+      actionFilterValue: "",
 
       filters: {
         server_sn: [],
@@ -522,7 +524,7 @@ export default {
           text: "Action",
           align: "center",
           value: "action",
-          filter: this.actionFilter,
+          // filter: this.actionFilter,
           index: 6,
         },
         {
@@ -543,7 +545,7 @@ export default {
           text: "Result",
           align: "center",
           value: "result",
-          filter: this.resultFilter,
+          // filter: this.resultFilter,
           index: 9,
         },
       ];
@@ -571,6 +573,18 @@ export default {
     },
     dialogDelete(val) {
       val || this.closeDelete();
+    },
+    optional() {
+      this.getJobs();
+    },
+
+    action() {
+      this.actionFilter(this.action);
+      // this.actionFilter(this.selected);
+      // this.getJobs();
+    },
+    result() {
+      this.resultFilter(this.result);
     },
 
     params: {
@@ -670,7 +684,7 @@ export default {
               searchable: true,
               orderable: true,
               search: {
-                value: "",
+                value: this.actionFilterValue,
                 regex: false,
               },
             },
@@ -700,7 +714,7 @@ export default {
               searchable: true,
               orderable: true,
               search: {
-                value: "",
+                value: this.resultFilterValue,
                 regex: false,
               },
             },
@@ -718,12 +732,12 @@ export default {
             },
           ],
           start: 0,
-          length: 15,
+          length: this.itemsPerPage,
           search: {
-            value: "",
+            value: this.search,
             regex: false,
           },
-          optional: "",
+          optional: this.optional,
         })
         .then((res) => {
           this.tableData = res.data.data;
@@ -793,10 +807,25 @@ export default {
       return value === this.orderFilterValue;
     },
     actionFilter(value) {
-      if (!this.actionFilterValue) {
-        return true;
-      }
-      return value === this.actionFilterValue;
+      // if (!this.actionFilterValue) {
+      //   return true;
+      // }
+      // return value === this.actionFilterValue;
+      this.loading = true
+      this.$axios.get("http://localhost:5000/api/job/actions").then((res) => {
+        if (value != null) {
+          this.actionFilterValue =
+            res.data.actions === []
+              ? ""
+              : res.data.actions.find((c) => c.name === value).id.toString();
+          this.getJobs();
+          this.loading = false
+        } else {
+          this.actionFilterValue = "";
+          this.getJobs();
+          this.loading = false
+        }
+      });
     },
     startFilter(value) {
       if (!this.dateStartFilterValue) {
@@ -810,14 +839,28 @@ export default {
         return true;
       }
       value = this.$moment(value).format("YYYY-MM-DD");
-      console.log(value);
       return value === this.dateStopFilterValue;
     },
     resultFilter(value) {
-      if (!this.resultFilterValue) {
-        return true;
-      }
-      return value === this.resultFilterValue;
+      // if (!this.resultFilterValue) {
+      //   return true;
+      // }
+      // return value === this.resultFilterValue;
+      this.loading = true
+            this.$axios.get("http://localhost:5000/api/job/results").then((res) => {
+        if (value != null) {
+          this.resultFilterValue =
+            res.data.result === []
+              ? ""
+              : res.data.results.find((c) => c.name === value).id.toString();
+          this.getJobs();
+          this.loading = false
+        } else {
+          this.resultFilterValue = "";
+          this.getJobs();
+          this.loading = false
+        }
+      });
     },
 
     save() {
