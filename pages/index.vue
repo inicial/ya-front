@@ -256,7 +256,7 @@
                     locale="ru-ru"
                     v-model="dateStartFilterValue"
                     @input="menu2 = false"
-                    @change="stopFilter"
+                    @change="startFilter"
                   ></v-date-picker>
                 </v-menu>
               </td>

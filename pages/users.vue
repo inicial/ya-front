@@ -390,7 +390,7 @@ export default {
             },
           ],
           start: 0,
-          length: this.options.itemsPerPage,
+          length: 0,
           search: {
             value: this.search,
             regex: false,
