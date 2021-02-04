@@ -219,10 +219,9 @@
                   class="my-2"
                   :items="modelList"
                   label="Filter by model"
-                  v-model="modelFilterValue"
+                  v-model="model"
                   editable
                   dense
-                  hint="Select Vegman Server model"
                 ></v-overflow-btn>
               </td>
 
@@ -266,10 +265,9 @@
                   class="my-2"
                   :items="nameList"
                   label="Filter by user"
-                  v-model="nameFilterValue"
+                  v-model="name"
                   editable
                   dense
-                  hint="Select username"
                 ></v-overflow-btn>
               </td>
 
@@ -324,10 +322,9 @@
                   class="my-2"
                   :items="orderList"
                   label="Filter by order"
-                  v-model="orderFilterValue"
+                  v-model="order"
                   editable
                   dense
-                  hint="Select order"
                 ></v-overflow-btn>
               </td>
 
@@ -424,6 +421,9 @@ export default {
     return {
       result: "",
       action: "",
+      order: "",
+      model: "",
+      name: "",
       optional: "",
 
       snack: false,
@@ -443,10 +443,10 @@ export default {
         sortBy: ["date_start"],
       },
       nameList: [{ text: "All", value: null }],
-      modelList: [{ text: "All", value: null }],
-      orderList: [{ text: "All", value: null }],
-      actionList: [{ text: "All", value: null }],
-      resultList: [{ text: "All", value: null }],
+      modelList: [{ text: "All", value: "" }],
+      orderList: [{ text: "All", value: "" }],
+      actionList: [{ text: "All", value: "" }],
+      resultList: [{ text: "All", value: "" }],
       tableData: [],
 
       date: "",
@@ -454,15 +454,8 @@ export default {
       modal: false,
       menu2: false,
 
-      nameFilterValue: null,
-      // serverFilterValue: null,
-      modelFilterValue: null,
       dateStartFilterValue: null,
       dateStopFilterValue: null,
-      resultFilterValue: "",
-      orderFilterValue: null,
-      companyFilterValue: null,
-      actionFilterValue: "",
 
       filters: {
         server_sn: [],
@@ -496,7 +489,6 @@ export default {
           text: "Model",
           align: "center",
           value: "server_model",
-          filter: this.modelFilter,
           index: 2,
         },
         {
@@ -510,7 +502,6 @@ export default {
           text: "Started by",
           align: "center",
           value: "starter",
-          filter: this.nameFilter,
           index: 4,
         },
         {
@@ -524,14 +515,12 @@ export default {
           text: "Action",
           align: "center",
           value: "action",
-          // filter: this.actionFilter,
           index: 6,
         },
         {
           text: "Order",
           align: "center",
           value: "order",
-          filter: this.orderFilter,
           index: 7,
         },
         {
@@ -545,19 +534,10 @@ export default {
           text: "Result",
           align: "center",
           value: "result",
-          // filter: this.resultFilter,
           index: 9,
         },
       ];
     },
-
-    // filteredtableData() {
-    //   return this.tableData.filter((d) => {
-    //     return Object.keys(this.filters).every((f) => {
-    //       return this.filters[f].length < 1 || this.filters[f].includes(d[f]);
-    //     });
-    //   });
-    // },
 
     params(nv) {
       return {
@@ -579,12 +559,19 @@ export default {
     },
 
     action() {
-      this.actionFilter(this.action);
-      // this.actionFilter(this.selected);
-      // this.getJobs();
+      this.getJobs();
     },
     result() {
-      this.resultFilter(this.result);
+      this.getJobs();
+    },
+    order() {
+      this.getJobs();
+    },
+    model() {
+      this.getJobs();
+    },
+    name() {
+      this.getJobs();
     },
 
     params: {
@@ -634,7 +621,7 @@ export default {
               searchable: true,
               orderable: true,
               search: {
-                value: "",
+                value: this.model.toString(),
                 regex: false,
               },
             },
@@ -664,7 +651,7 @@ export default {
               searchable: true,
               orderable: true,
               search: {
-                value: "",
+                value: this.name.toString(),
                 regex: false,
               },
             },
@@ -684,7 +671,7 @@ export default {
               searchable: true,
               orderable: true,
               search: {
-                value: this.actionFilterValue,
+                value: this.action.toString(),
                 regex: false,
               },
             },
@@ -694,7 +681,7 @@ export default {
               searchable: true,
               orderable: true,
               search: {
-                value: "",
+                value: this.order.toString(),
                 regex: false,
               },
             },
@@ -714,7 +701,7 @@ export default {
               searchable: true,
               orderable: true,
               search: {
-                value: this.resultFilterValue,
+                value: this.result.toString(),
                 regex: false,
               },
             },
@@ -732,7 +719,7 @@ export default {
             },
           ],
           start: 0,
-          length: this.itemsPerPage,
+          length: 0,
           search: {
             value: this.search,
             regex: false,
@@ -747,84 +734,53 @@ export default {
 
     getFiltersData() {
       this.hidden = !this.hidden;
-
-      let server_models = [];
-      let started_by = [];
-      let actions = [];
-      let orders = [];
-      let results = [];
-
-      this.tableData.forEach(function (item) {
-        server_models.push({
-          text: item.server_model,
-          value: item.server_model,
-        });
-      });
-
-      this.tableData.forEach(function (item) {
-        started_by.push({ text: item.starter, value: item.starter });
-      });
-
-      this.tableData.forEach(function (item) {
-        actions.push({ text: item.action, value: item.action });
-      });
-
-      this.tableData.forEach(function (item) {
-        orders.push({ text: item.order, value: item.order });
-      });
-
-      this.tableData.forEach(function (item) {
-        results.push({ text: item.result, value: item.result });
-      });
-
-      this.modelList = this.modelList.concat(server_models);
-      this.nameList = this.nameList.concat(started_by);
-      this.actionList = this.actionList.concat(actions);
-      this.orderList = this.orderList.concat(orders);
-      this.resultList = this.orderList.concat(results);
+      this.actionFilter();
+      this.resultFilter();
+      this.orderFilter();
+      this.modelFilter();
+      this.nameFilter();
     },
 
     columnValueList(val) {
       return this.filteredtableData.map((d) => d[val]);
     },
 
-    nameFilter(value) {
-      if (!this.nameFilterValue) {
-        return true;
-      }
-      return value === this.nameFilterValue;
+    nameFilter() {
+      this.$axios.get("http://localhost:5000/api/job/users").then((res) => {
+        let users = [];
+        res.data.users.forEach(function (item) {
+          users.push({ text: item.username, value: item.id });
+        });
+        this.nameList = this.nameList.concat(users);
+      });
     },
-    modelFilter(value) {
-      if (!this.modelFilterValue) {
-        return true;
-      }
-      return value === this.modelFilterValue;
+    modelFilter() {
+      this.$axios
+        .get("http://localhost:5000/api/servers/models")
+        .then((res) => {
+          let models = [];
+          res.data.models.forEach(function (item) {
+            models.push({ text: item.name, value: item.id });
+          });
+          this.modelList = this.modelList.concat(models);
+        });
     },
-    orderFilter(value) {
-      if (!this.orderFilterValue) {
-        return true;
-      }
-      return value === this.orderFilterValue;
+    orderFilter() {
+      this.$axios.get("http://localhost:5000/api/job/orders").then((res) => {
+        let orders = [];
+        res.data.orders.forEach(function (item) {
+          orders.push({ text: item.name, value: item.id });
+        });
+        this.orderList = this.orderList.concat(orders);
+      });
     },
-    actionFilter(value) {
-      // if (!this.actionFilterValue) {
-      //   return true;
-      // }
-      // return value === this.actionFilterValue;
-      this.loading = true
+    actionFilter() {
       this.$axios.get("http://localhost:5000/api/job/actions").then((res) => {
-        if (value != null) {
-          this.actionFilterValue =
-            res.data.actions === []
-              ? ""
-              : res.data.actions.find((c) => c.name === value).id.toString();
-          this.getJobs();
-          this.loading = false
-        } else {
-          this.actionFilterValue = "";
-          this.getJobs();
-          this.loading = false
-        }
+        let actions = [];
+        res.data.actions.forEach(function (item) {
+          actions.push({ text: item.name, value: item.id });
+        });
+        this.actionList = this.actionList.concat(actions);
       });
     },
     startFilter(value) {
@@ -841,25 +797,13 @@ export default {
       value = this.$moment(value).format("YYYY-MM-DD");
       return value === this.dateStopFilterValue;
     },
-    resultFilter(value) {
-      // if (!this.resultFilterValue) {
-      //   return true;
-      // }
-      // return value === this.resultFilterValue;
-      this.loading = true
-            this.$axios.get("http://localhost:5000/api/job/results").then((res) => {
-        if (value != null) {
-          this.resultFilterValue =
-            res.data.result === []
-              ? ""
-              : res.data.results.find((c) => c.name === value).id.toString();
-          this.getJobs();
-          this.loading = false
-        } else {
-          this.resultFilterValue = "";
-          this.getJobs();
-          this.loading = false
-        }
+    resultFilter() {
+      this.$axios.get("http://localhost:5000/api/job/results").then((res) => {
+        let results = [];
+        res.data.results.forEach(function (item) {
+          results.push({ text: item.name, value: item.id });
+        });
+        this.resultList = this.resultList.concat(results);
       });
     },
 
