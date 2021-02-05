@@ -196,7 +196,6 @@ export default {
   data() {
     return {
       clipped: false,
-      drawer: false,
       fixed: false,
       username: "testDAT",
       results: [
@@ -240,9 +239,6 @@ export default {
           to: "/operation_systems",
         },
       ],
-      miniVariant: false,
-      right: true,
-      rightDrawer: false,
       title: "DAT",
     };
   },

@@ -10,6 +10,7 @@
             outlined
             x-small
             @click="getAll"
+            v-if="$store.state.pageName === 'jobs'"
             >All</v-btn
           >
           <v-btn
@@ -19,6 +20,7 @@
             outlined
             x-small
             @click="getRunning"
+            v-if="$store.state.pageName === 'jobs'"
           >
             Running</v-btn
           >
@@ -31,6 +33,7 @@
             outlined
             x-small
             color="indigo"
+            v-if="$store.state.pageName === 'jobs'"
           >
             <v-icon x-small>mdi-filter</v-icon>
             Filter
@@ -60,42 +63,19 @@
       hide-details
     ></v-text-field>
   </v-card-title>
-
 </template>
 
 <script>
 export default {
-  props: {
-    pageOfFilter: {
-      type: String,
-      required: true,
-      default: "",
-    },
-    hidden: {
-        type: Boolean,
-        default: true,
-    },
-  },
   data() {
     return {
-      iconHeader: "mdi-database-plus-outline",
-      titleHeader: "Vegman Servers Jobs Archive",
       action: "",
       order: "",
       model: "",
       name: "",
       stand: "",
 
-      snack: false,
-      snackColor: "",
-      snackText: "",
-      max25chars: (v) => v.length <= 25 || "Input too long!",
-
-      page: 1,
-      pageCount: 0,
-      itemsPerPage: 10,
       search: "",
-      loading: true,
       options: {
         sortBy: ["date_start"],
       },
@@ -107,42 +87,18 @@ export default {
       resultList: [{ text: "All", value: "" }],
 
       date: "",
-      menu: false,
-      modal: false,
-      menu2: false,
 
       dateStartFilterValue: null,
       dateStopFilterValue: null,
     };
   },
-  head() {
-    return {
-      title: "Jobs Archive",
-    };
-  },
-  computed: {
-
-    params(nv) {
-      return {
-        ...this.options,
-        query: this.$store.dispatch('jobs/getJobs', { result: ''}),
-      };
-    },
-  },
 
   watch: {
-    dialog(val) {
-      val || this.close();
+    search() {
+      this.$store.commit(this.$store.state.pageName + "/search", this.search);
     },
-    dialogDelete(val) {
-      val || this.closeDelete();
-    },
-
-    search(){
-      this.$store.commit('jobs/search', this.search)
-    },
-    result(){
-      this.$store.commit('jobs/search', this.search)
+    result() {
+      this.$store.commit(this.$store.state.result + "/search", this.search);
     },
 
     action() {
@@ -172,22 +128,19 @@ export default {
     },
   },
 
-  mounted() {
-
-  },
+  mounted() {},
 
   methods: {
-      getAll(){
-          this.$store.dispatch("jobs/result", "")
-      },
-      getRunning(){
-          this.$store.dispatch("jobs/result", "running")
-      },
-    async getJobs() {
+    getAll() {
+      this.$store.dispatch("jobs/result", "");
     },
+    getRunning() {
+      this.$store.dispatch("jobs/result", "running");
+    },
+    async getJobs() {},
 
     getFiltersData() {
-      this.$store.commit('toggle')
+      this.$store.commit("toggle");
       this.actionFilter();
       this.resultFilter();
       this.orderFilter();
@@ -269,30 +222,6 @@ export default {
         });
         this.resultList = this.resultList.concat(results);
       });
-    },
-
-    save() {
-      this.snack = true;
-      this.snackColor = "success";
-      this.snackText = "Data saved";
-    },
-    cancel() {
-      this.snack = true;
-      this.snackColor = "error";
-      this.snackText = "Canceled";
-    },
-    open() {
-      this.snack = true;
-      this.snackColor = "info";
-      this.snackText = "Dialog opened";
-    },
-    close() {
-      console.log("Dialog closed");
-    },
-
-    rowClicked(row) {
-      this.toggleSelection(row.date_start);
-      console.log(row);
     },
   },
 };

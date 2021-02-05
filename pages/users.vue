@@ -6,30 +6,20 @@
       max-height="800"
     >
       <v-container style="height: auto">
+        <Header />
 
-        <Header :titleHeader="titleHeader" :iconHeader="iconHeader"/>
-
-        <v-card-title>
-          <v-spacer></v-spacer>
-
-          <v-text-field
-            v-model="search"
-            append-icon="mdi-magnify"
-            label="Search"
-            hide-details
-          ></v-text-field>
-        </v-card-title>
+        <Filters :pageName="$store.commit('page', 'users')" />
 
         <v-data-table
           height="550"
           :headers="headers"
-          :items="tableData"
+          :items="$store.state.users.apiData"
           :options.sync="options"
           item-key="items.username"
           :page.sync="page"
           @page-count="pageCount = $event"
           :items-per-page="itemsPerPage"
-          :loading="loading"
+          :loading="$store.state.users.loading"
           elevation="0"
           fixed-header
           dense
@@ -201,8 +191,6 @@
 export default {
   data() {
     return {
-      titleHeader: "User Administration",
-      iconHeader: "mdi-account-multiple",
       dialog: false,
 
       snack: false,
@@ -216,12 +204,10 @@ export default {
       pageCount: 0,
       itemsPerPage: 10,
       search: "",
-      loading: true,
       options: {
         sortBy: ["username"],
       },
       totalData: 0,
-      tableData: [],
 
       editedIndex: -1,
       editedUser: {
@@ -278,7 +264,7 @@ export default {
     params(nv) {
       return {
         ...this.options,
-        query: this.search,
+        query: this.$store.dispatch("users/getUsers"),
       };
     },
   },
@@ -292,116 +278,18 @@ export default {
     },
 
     params: {
-      handler() {
-        this.getUsers();
-      },
+      handler() {},
       deep: true,
     },
   },
 
-  methods: {
-    async getUsers() {
-      await this.$axios
-        .post("http://localhost:5000/api/datatables/users", {
-          draw: 1,
-          columns: [
-            {
-              data: "username",
-              name: "",
-              searchable: true,
-              orderable: true,
-              search: {
-                value: this.search,
-                regex: false,
-              },
-            },
-            {
-              data: "first_name",
-              name: "",
-              searchable: true,
-              orderable: true,
-              search: {
-                value: this.search,
-                regex: false,
-              },
-            },
-            {
-              data: "last_name",
-              name: "",
-              searchable: true,
-              orderable: true,
-              search: {
-                value: this.search,
-                regex: false,
-              },
-            },
-            {
-              data: "email",
-              name: "",
-              searchable: true,
-              orderable: true,
-              search: {
-                value: this.search,
-                regex: false,
-              },
-            },
-            {
-              data: "role",
-              name: "",
-              searchable: true,
-              orderable: true,
-              search: {
-                value: this.search,
-                regex: false,
-              },
-            },
-            {
-              data: "company",
-              name: "",
-              searchable: true,
-              orderable: true,
-              search: {
-                value: this.search,
-                regex: false,
-              },
-            },
-            {
-              data: "online",
-              name: "",
-              searchable: true,
-              orderable: true,
-              search: {
-                value: this.search,
-                regex: false,
-              },
-            },
-          ],
-          order: [
-            {
-              column: this.headers.find(
-                ({ value }) => value === this.options.sortBy[0]
-              ).index,
-              dir:
-                this.options.sortDesc === false ||
-                this.options.sortDesc[0] === false
-                  ? "desc"
-                  : "asc",
-            },
-          ],
-          start: 0,
-          length: 0,
-          search: {
-            value: this.search,
-            regex: false,
-          },
-          optional: "null",
-        })
-        .then((res) => {
-          this.tableData = res.data.data;
-          this.loading = false;
-        });
-    },
+  mounted() {
+    this.$store.dispatch("users/getUsers");
+    this.$store.commit("title", "User Administration");
+    this.$store.commit("icon", "mdi-account-multiple");
+  },
 
+  methods: {
     save() {
       this.snack = true;
       this.snackColor = "success";

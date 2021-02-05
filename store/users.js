@@ -10,6 +10,9 @@ export const mutations = {
   toggle(state) {
     state.hidden = !state.hidden
   },
+  // setLoading(state, loading) {
+  //   state.loading = loading
+  // },
   search(state, search) {
     state.search = search
   },
@@ -22,16 +25,15 @@ export const mutations = {
 }
 
 export const actions = {
-  getJobs({
+  getUsers({
     state,
     commit
   }) {
-    //http://localhost:5000/api/datatables/jobs
     this.$axios
-      .post('http://localhost:5000/api/datatables/jobs', {
+      .post('http://localhost:5000/api/datatables/users', {
         draw: 1,
         columns: [{
-            data: "server_sn",
+            data: "username",
             name: "",
             searchable: true,
             orderable: true,
@@ -41,7 +43,7 @@ export const actions = {
             },
           },
           {
-            data: "mbd_sn",
+            data: "first_name",
             name: "",
             searchable: true,
             orderable: true,
@@ -51,7 +53,7 @@ export const actions = {
             },
           },
           {
-            data: "server_model",
+            data: "last_name",
             name: "",
             searchable: true,
             orderable: true,
@@ -61,7 +63,7 @@ export const actions = {
             },
           },
           {
-            data: "stand",
+            data: "email",
             name: "",
             searchable: true,
             orderable: true,
@@ -71,7 +73,7 @@ export const actions = {
             },
           },
           {
-            data: "start",
+            data: "role",
             name: "",
             searchable: true,
             orderable: true,
@@ -81,7 +83,7 @@ export const actions = {
             },
           },
           {
-            data: "starter",
+            data: "company",
             name: "",
             searchable: true,
             orderable: true,
@@ -91,47 +93,7 @@ export const actions = {
             },
           },
           {
-            data: "stop",
-            name: "",
-            searchable: true,
-            orderable: true,
-            search: {
-              value: "",
-              regex: false,
-            },
-          },
-          {
-            data: "action",
-            name: "",
-            searchable: true,
-            orderable: true,
-            search: {
-              value: "",
-              regex: false,
-            },
-          },
-          {
-            data: "order",
-            name: "",
-            searchable: true,
-            orderable: true,
-            search: {
-              value: "",
-              regex: false,
-            },
-          },
-          {
-            data: "sel_logs",
-            name: "",
-            searchable: true,
-            orderable: true,
-            search: {
-              value: "",
-              regex: false,
-            },
-          },
-          {
-            data: "result",
+            data: "online",
             name: "",
             searchable: true,
             orderable: true,
@@ -142,7 +104,7 @@ export const actions = {
           },
         ],
         order: [{
-          column: 4,
+          column: 2,
           dir: "desc"
         }, ],
         start: 0,
