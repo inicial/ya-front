@@ -1,8 +1,9 @@
 <template>
-  <!-- <v-layout> -->
-  <v-card elevation="0" min-width="800">
-    <v-sheet class="overflow-y-auto" max-height="800">
-      <v-container style="height: auto">
+  <v-col>
+    <!-- <v-layout> -->
+    <v-card elevation="0" min-width="800">
+      <v-sheet class="overflow-y-auto" max-height="800">
+        <!-- <v-container style="height: auto"> -->
         <Header
           :selectedRows="selectedRows"
           :titleHeader="titleHeader"
@@ -20,7 +21,8 @@
                   outlined
                   x-small
                   @click="optional = ''"
-                  >All</v-btn>
+                  >All</v-btn
+                >
                 <v-btn
                   tile
                   class="mb-0"
@@ -29,7 +31,8 @@
                   x-small
                   @click="optional = 'running'"
                 >
-                  Running</v-btn>
+                  Running</v-btn
+                >
 
                 <v-btn
                   tile
@@ -55,15 +58,18 @@
                   @click="resultFilterValue = 'FAILURE'"
                 >
                   <v-icon x-small>mdi-cached</v-icon>
-                  Rescan</v-btn>
+                  Rescan</v-btn
+                >
 
                 <div v-if="selectedRows.length != 0">
                   <span v-if="selectedRows.length <= 1" class="text-sm-body-2"
-                    >{{ selectedRows.length }} row selected</span>
+                    >{{ selectedRows.length }} row selected</span
+                  >
                   <span
                     v-else-if="selectedRows.length >= 2"
                     class="text-sm-body-2"
-                    >+ {{ selectedRows.length }} rows selected</span>
+                    >+ {{ selectedRows.length }} rows selected</span
+                  >
                 </div>
               </v-card>
             </v-col>
@@ -98,6 +104,7 @@
             prevIcon: '',
             nextIcon: '',
           }"
+          class="text-sm-caption"
         >
           <template v-slot:item="{ item }">
             <tr
@@ -154,20 +161,20 @@
                     color="green"
                     small
                     text-color="white"
-                    class="ma-2"
+                    class="ma-0"
                     v-if="item.result.toLowerCase() === 'success'"
                   >
-                    <v-icon size="18"> mdi-check-circle </v-icon>
+                    <v-icon size="18" class="mr-1"> mdi-check-circle </v-icon>
                     {{ item.result.toLowerCase() }}</v-chip
                   >
                   <v-chip
                     color="error"
                     small
                     text-color="white"
-                    class="ma-2"
+                    class="ma-0"
                     v-if="item.result.toLowerCase() === 'failure'"
                   >
-                    <v-icon size="18"> mdi-close-circle </v-icon>
+                    <v-icon size="18" class="mr-1"> mdi-close-circle </v-icon>
                     <b>{{ item.result.toLowerCase() }}</b></v-chip
                   >
 
@@ -175,10 +182,10 @@
                     color="orange"
                     small
                     text-color="white"
-                    class="ma-2"
+                    class="ma-0"
                     v-if="item.result.toLowerCase() === 'error'"
                   >
-                    <v-icon size="18"> mdi-close-circle </v-icon>
+                    <v-icon size="18" class="mr-1"> mdi-close-circle </v-icon>
                     <b>{{ item.result.toLowerCase() }}</b></v-chip
                   >
 
@@ -186,7 +193,7 @@
                     color="secondary"
                     small
                     text-color="white"
-                    class="ma-2"
+                    class="ma-0"
                     v-if="item.result.toLowerCase() === 'running'"
                     link
                     to="/users"
@@ -203,14 +210,14 @@
                     color="info"
                     small
                     text-color="white"
-                    class="ma-2"
+                    class="ma-0"
                     v-if="item.result.toLowerCase() === 'interrupted'"
                     link
                     to="/users"
                   >
-                    <v-icon size="18"> mdi-information </v-icon>
-                    <b>Stopped by {{ item.stopper }}</b></v-chip
-                  >
+                    <v-icon size="18" class="mr-1"> mdi-information </v-icon>
+                    <b>stopped by {{ item.stopper }}</b>
+                  </v-chip>
                 </v-layout>
               </td>
             </tr>
@@ -427,10 +434,11 @@
             <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
           </template>
         </v-snackbar>
-      </v-container>
-    </v-sheet>
-  </v-card>
-  <!-- </v-layout> -->
+        <!-- </v-container> -->
+      </v-sheet>
+    </v-card>
+    <!-- </v-layout> -->
+  </v-col>
 </template>
 
 <script>
@@ -479,17 +487,6 @@ export default {
 
       dateStartFilterValue: null,
       dateStopFilterValue: null,
-
-      // filters: {
-      //   server_sn: [],
-      //   server_model: [],
-      //   date_start: [],
-      //   date_stop: [],
-      //   result: [],
-      //   action: [],
-      //   order: [],
-      //   starter: [],
-      // },
     };
   },
   head() {
@@ -500,16 +497,40 @@ export default {
   computed: {
     headers() {
       return [
-        { text: "Server", align: "center", sortable: true, value: "server_sn", index: 0 },
+        {
+          text: "Server",
+          align: "center",
+          sortable: true,
+          value: "server_sn",
+          index: 0,
+        },
         { text: "Motherboard", align: "center", value: "mbd_sn", index: 1 },
         { text: "Model", align: "center", value: "server_model", index: 2 },
         { text: "Stand", align: "center", value: "stand", index: 3 },
-        { text: "Start", align: "center", value: "date_start", filter: this.startFilter, index: 4 },
+        {
+          text: "Start",
+          align: "center",
+          value: "date_start",
+          filter: this.startFilter,
+          index: 4,
+        },
         { text: "Started by", align: "center", value: "starter", index: 5 },
-        { text: "Stop", align: "center", value: "date_stop", filter: this.stopFilter, index: 6 },
+        {
+          text: "Stop",
+          align: "center",
+          value: "date_stop",
+          filter: this.stopFilter,
+          index: 6,
+        },
         { text: "Action", align: "center", value: "action", index: 7 },
         { text: "Order", align: "center", value: "order", index: 8 },
-        { text: "SELs", align: "center", value: "sel_logs", filterable: false, index: 9 },
+        {
+          text: "SELs",
+          align: "center",
+          value: "sel_logs",
+          filterable: false,
+          index: 9,
+        },
         { text: "Result", align: "center", value: "result", index: 10 },
       ];
     },
@@ -686,9 +707,9 @@ export default {
           ],
           order: [
             {
-              column: this.headers.find(
+              column: this.options.sortBy[0] ? this.headers.find(
                 ({ value }) => value === this.options.sortBy[0]
-              ).index,
+              ).index : 4,
               dir:
                 this.options.sortDesc === false ||
                 this.options.sortDesc[0] === false
@@ -745,15 +766,13 @@ export default {
         });
     },
     standFilter() {
-      this.$axios
-        .get("http://localhost:5000/api/job/stands")
-        .then((res) => {
-          let stands = [];
-          res.data.stands.forEach(function (item) {
-            stands.push({ text: item.name, value: item.id });
-          });
-          this.standList = this.standList.concat(stands);
+      this.$axios.get("http://localhost:5000/api/job/stands").then((res) => {
+        let stands = [];
+        res.data.stands.forEach(function (item) {
+          stands.push({ text: item.name, value: item.id });
         });
+        this.standList = this.standList.concat(stands);
+      });
     },
     orderFilter() {
       this.$axios.get("http://localhost:5000/api/job/orders").then((res) => {
@@ -844,7 +863,7 @@ export default {
   margin-top: 10px;
 }
 .filter-item {
-  padding: 0 20px 0 20px;
+  padding: 2px;
 }
 .v-progress-circular {
   margin-right: 0.5rem;
