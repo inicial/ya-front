@@ -31,7 +31,6 @@
           :items-per-page="itemsPerPage"
           :loading="loading"
           elevation="0"
-          show-select
           fixed-header
           dense
           :footer-props="{
@@ -189,7 +188,6 @@
 
         <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
           {{ snackText }}
-
           <template v-slot:action="{ attrs }">
             <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
           </template>

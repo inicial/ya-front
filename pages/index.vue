@@ -3,438 +3,365 @@
     <!-- <v-layout> -->
     <v-card elevation="0" min-width="800">
       <v-sheet class="overflow-y-auto" max-height="800">
-        <!-- <v-container style="height: auto"> -->
-        <Header
-          :selectedRows="selectedRows"
-          :titleHeader="titleHeader"
-          :iconHeader="iconHeader"
-        />
+        <v-container style="height: auto">
+          <Header
+            :titleHeader="titleHeader"
+            :iconHeader="iconHeader"
+          />
 
-        <v-card-title>
-          <v-row no-gutters>
-            <v-col>
-              <v-card class="pa-2" flat tile>
-                <v-btn
-                  tile
-                  class="mb-0"
-                  elevation="0"
-                  outlined
-                  x-small
-                  @click="optional = ''"
-                  >All</v-btn
-                >
-                <v-btn
-                  tile
-                  class="mb-0"
-                  elevation="0"
-                  outlined
-                  x-small
-                  @click="optional = 'running'"
-                >
-                  Running</v-btn
-                >
+          <Filters pageOfFilter="Jobs" />
 
-                <v-btn
-                  tile
-                  class="mb-0"
-                  @click="getFiltersData"
-                  elevation="0"
-                  outlined
-                  x-small
-                  color="indigo"
-                >
-                  <v-icon x-small>mdi-filter</v-icon>
-                  Filter
-                </v-btn>
-
-                <v-btn
-                  tile
-                  class="mb-0"
-                  elevation="0"
-                  outlined
-                  x-small
-                  v-show="selectedRows.length >= 2"
-                  color="green"
-                  @click="resultFilterValue = 'FAILURE'"
-                >
-                  <v-icon x-small>mdi-cached</v-icon>
-                  Rescan</v-btn
-                >
-
-                <div v-if="selectedRows.length != 0">
-                  <span v-if="selectedRows.length <= 1" class="text-sm-body-2"
-                    >{{ selectedRows.length }} row selected</span
+          <v-data-table
+            height="550"
+            :headers="headers"
+            :items="$store.state.jobs.apiData"
+            :options.sync="options"
+            :page.sync="page"
+            @page-count="pageCount = $event"
+            :items-per-page="itemsPerPage"
+            :loading="$store.state.jobs.loading"
+            elevation="0"
+            item-key="date_start"
+            fixed-header
+            dense
+            :footer-props="{
+              showFirstLastPage: false,
+              firstIcon: '',
+              lastIcon: '',
+              prevIcon: '',
+              nextIcon: '',
+            }"
+            class="text-sm-caption"
+          >
+            <template v-slot:item="{ item }">
+              <tr
+                :class="
+                  $store.state.selectedRows.indexOf(item.date_start) > -1
+                    ? 'v-data-table__selected'
+                    : ''
+                "
+                @click="rowClicked(item)"
+              >
+                <td>
+                  <v-layout justify-center>{{ item.server_sn }}</v-layout>
+                </td>
+                <td>
+                  <v-layout justify-center>
+                    <a>{{ item.mbd_sn }}</a>
+                  </v-layout>
+                </td>
+                <td>
+                  <v-layout justify-center>{{ item.server_model }}</v-layout>
+                </td>
+                <td>
+                  <v-layout justify-center>{{ item.stand }}</v-layout>
+                </td>
+                <td>
+                  <v-layout justify-center>{{
+                    $moment.utc(item.date_start).format("YYYY-MM-DD HH:mm:ss")
+                  }}</v-layout>
+                </td>
+                <td>
+                  <v-layout justify-center>{{ item.starter }}</v-layout>
+                </td>
+                <td>
+                  <v-layout justify-center>{{
+                    $moment.utc(item.date_stop).format("YYYY-MM-DD HH:mm:ss")
+                  }}</v-layout>
+                </td>
+                <td>
+                  <v-layout justify-center>{{ item.action }}</v-layout>
+                </td>
+                <td>
+                  <v-layout justify-center
+                    >[{{ item.server_sn }}] {{ item.order }}</v-layout
                   >
-                  <span
-                    v-else-if="selectedRows.length >= 2"
-                    class="text-sm-body-2"
-                    >+ {{ selectedRows.length }} rows selected</span
-                  >
-                </div>
-              </v-card>
-            </v-col>
-          </v-row>
+                </td>
+                <td>
+                  <v-layout justify-center>
+                    <a href="/job_sels">{{ item.sel_logs }}</a>
+                  </v-layout>
+                </td>
+                <td>
+                  <v-layout justify-center>
+                    <v-chip
+                      color="green"
+                      small
+                      text-color="white"
+                      class="ma-0"
+                      v-if="item.result.toLowerCase() === 'success'"
+                    >
+                      <v-icon size="18" class="mr-1"> mdi-check-circle </v-icon>
+                      {{ item.result.toLowerCase() }}</v-chip
+                    >
+                    <v-chip
+                      color="error"
+                      small
+                      text-color="white"
+                      class="ma-0"
+                      v-if="item.result.toLowerCase() === 'failure'"
+                    >
+                      <v-icon size="18" class="mr-1"> mdi-close-circle </v-icon>
+                      <b>{{ item.result.toLowerCase() }}</b></v-chip
+                    >
 
-          <v-text-field
-            v-model="search"
-            append-icon="mdi-magnify"
-            label="Search"
-            hide-details
-          ></v-text-field>
-        </v-card-title>
+                    <v-chip
+                      color="orange"
+                      small
+                      text-color="white"
+                      class="ma-0"
+                      v-if="item.result.toLowerCase() === 'error'"
+                    >
+                      <v-icon size="18" class="mr-1"> mdi-close-circle </v-icon>
+                      <b>{{ item.result.toLowerCase() }}</b></v-chip
+                    >
 
-        <v-data-table
-          height="550"
-          :headers="headers"
-          :items="tableData"
-          :options.sync="options"
-          :page.sync="page"
-          @page-count="pageCount = $event"
-          :items-per-page="itemsPerPage"
-          :loading="loading"
-          elevation="0"
-          item-key="date_start"
-          v-model="selectedRows"
-          fixed-header
-          dense
-          :footer-props="{
-            showFirstLastPage: false,
-            firstIcon: '',
-            lastIcon: '',
-            prevIcon: '',
-            nextIcon: '',
-          }"
-          class="text-sm-caption"
-        >
-          <template v-slot:item="{ item }">
-            <tr
-              :class="
-                selectedRows.indexOf(item.date_start) > -1
-                  ? 'v-data-table__selected'
-                  : ''
-              "
-              @click="rowClicked(item)"
-            >
-              <td>
-                <v-layout justify-center>{{ item.server_sn }}</v-layout>
-              </td>
-              <td>
-                <v-layout justify-center>
-                  <a>{{ item.mbd_sn }}</a>
-                </v-layout>
-              </td>
-              <td>
-                <v-layout justify-center>{{ item.server_model }}</v-layout>
-              </td>
-              <td>
-                <v-layout justify-center>{{ item.stand }}</v-layout>
-              </td>
-              <td>
-                <v-layout justify-center>{{
-                  $moment.utc(item.date_start).format("YYYY-MM-DD HH:mm:ss")
-                }}</v-layout>
-              </td>
-              <td>
-                <v-layout justify-center>{{ item.starter }}</v-layout>
-              </td>
-              <td>
-                <v-layout justify-center>{{
-                  $moment.utc(item.date_stop).format("YYYY-MM-DD HH:mm:ss")
-                }}</v-layout>
-              </td>
-              <td>
-                <v-layout justify-center>{{ item.action }}</v-layout>
-              </td>
-              <td>
-                <v-layout justify-center
-                  >[{{ item.server_sn }}] {{ item.order }}</v-layout
-                >
-              </td>
-              <td>
-                <v-layout justify-center>
-                  <a href="/job_sels">{{ item.sel_logs }}</a>
-                </v-layout>
-              </td>
-              <td>
-                <v-layout justify-center>
-                  <v-chip
-                    color="green"
-                    small
-                    text-color="white"
-                    class="ma-0"
-                    v-if="item.result.toLowerCase() === 'success'"
-                  >
-                    <v-icon size="18" class="mr-1"> mdi-check-circle </v-icon>
-                    {{ item.result.toLowerCase() }}</v-chip
-                  >
-                  <v-chip
-                    color="error"
-                    small
-                    text-color="white"
-                    class="ma-0"
-                    v-if="item.result.toLowerCase() === 'failure'"
-                  >
-                    <v-icon size="18" class="mr-1"> mdi-close-circle </v-icon>
-                    <b>{{ item.result.toLowerCase() }}</b></v-chip
-                  >
+                    <v-chip
+                      color="secondary"
+                      small
+                      text-color="white"
+                      class="ma-0"
+                      v-if="item.result.toLowerCase() === 'running'"
+                      link
+                      to="/users"
+                    >
+                      <v-progress-circular
+                        indeterminate
+                        color="white"
+                        :size="16"
+                      ></v-progress-circular>
+                      <b>{{ item.result }}</b>
+                    </v-chip>
 
-                  <v-chip
-                    color="orange"
-                    small
-                    text-color="white"
-                    class="ma-0"
-                    v-if="item.result.toLowerCase() === 'error'"
+                    <v-chip
+                      color="info"
+                      small
+                      text-color="white"
+                      class="ma-0"
+                      v-if="item.result.toLowerCase() === 'interrupted'"
+                      link
+                      to="/users"
+                    >
+                      <v-icon size="18" class="mr-1"> mdi-information </v-icon>
+                      <b>stopped by {{ item.stopper }}</b>
+                    </v-chip>
+                  </v-layout>
+                </td>
+              </tr>
+            </template>
+
+            <template v-slot:header v-if="$store.state.hidden">
+              <tr>
+                <td></td>
+                <td></td>
+
+                <td class="filter-item">
+                  <v-overflow-btn
+                    class="my-2"
+                    :items="modelList"
+                    label="Filter by model"
+                    v-model="model"
+                    editable
+                    dense
+                  ></v-overflow-btn>
+                </td>
+
+                <td class="filter-item">
+                  <v-overflow-btn
+                    class="my-2"
+                    :items="standList"
+                    label="Filter by stand"
+                    v-model="stand"
+                    editable
+                    dense
+                  ></v-overflow-btn>
+                </td>
+
+                <td class="filter-item">
+                  <v-menu
+                    v-model="menu2"
+                    :close-on-content-click="false"
+                    :nudge-right="40"
+                    transition="scale-transition"
+                    offset-y
+                    min-width="auto"
                   >
-                    <v-icon size="18" class="mr-1"> mdi-close-circle </v-icon>
-                    <b>{{ item.result.toLowerCase() }}</b></v-chip
-                  >
-
-                  <v-chip
-                    color="secondary"
-                    small
-                    text-color="white"
-                    class="ma-0"
-                    v-if="item.result.toLowerCase() === 'running'"
-                    link
-                    to="/users"
-                  >
-                    <v-progress-circular
-                      indeterminate
-                      color="white"
-                      :size="16"
-                    ></v-progress-circular>
-                    <b>{{ item.result }}</b>
-                  </v-chip>
-
-                  <v-chip
-                    color="info"
-                    small
-                    text-color="white"
-                    class="ma-0"
-                    v-if="item.result.toLowerCase() === 'interrupted'"
-                    link
-                    to="/users"
-                  >
-                    <v-icon size="18" class="mr-1"> mdi-information </v-icon>
-                    <b>stopped by {{ item.stopper }}</b>
-                  </v-chip>
-                </v-layout>
-              </td>
-            </tr>
-          </template>
-
-          <template v-slot:header v-if="!hidden">
-            <tr>
-              <td></td>
-              <td></td>
-
-              <td class="filter-item">
-                <v-overflow-btn
-                  class="my-2"
-                  :items="modelList"
-                  label="Filter by model"
-                  v-model="model"
-                  editable
-                  dense
-                ></v-overflow-btn>
-              </td>
-
-              <td class="filter-item">
-                <v-overflow-btn
-                  class="my-2"
-                  :items="standList"
-                  label="Filter by stand"
-                  v-model="stand"
-                  editable
-                  dense
-                ></v-overflow-btn>
-              </td>
-
-              <td class="filter-item">
-                <v-menu
-                  v-model="menu2"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        v-model="dateStartFilterValue"
+                        label="Start date"
+                        prepend-icon="mdi-calendar"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                        @change="stopFilter"
+                        clearable
+                        dense
+                        @click:clear="dateStartFilterValue = null"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      width="260"
+                      no-title
+                      scrollable
+                      locale="ru-ru"
                       v-model="dateStartFilterValue"
-                      label="Start date"
-                      prepend-icon="mdi-calendar"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                      @change="stopFilter"
-                      clearable
-                      dense
-                      @click:clear="dateStartFilterValue = null"
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    width="260"
-                    no-title
-                    scrollable
-                    locale="ru-ru"
-                    v-model="dateStartFilterValue"
-                    @input="menu2 = false"
-                    @change="startFilter"
-                  ></v-date-picker>
-                </v-menu>
-              </td>
+                      @input="menu2 = false"
+                      @change="startFilter"
+                    ></v-date-picker>
+                  </v-menu>
+                </td>
 
-              <td class="filter-item">
-                <v-overflow-btn
-                  class="my-2"
-                  :items="nameList"
-                  label="Filter by user"
-                  v-model="name"
-                  editable
-                  dense
-                ></v-overflow-btn>
-              </td>
+                <td class="filter-item">
+                  <v-overflow-btn
+                    class="my-2"
+                    :items="nameList"
+                    label="Filter by user"
+                    v-model="name"
+                    editable
+                    dense
+                  ></v-overflow-btn>
+                </td>
 
-              <td class="filter-item">
-                <v-menu
-                  v-model="menu"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
+                <td class="filter-item">
+                  <v-menu
+                    v-model="menu"
+                    :close-on-content-click="false"
+                    :nudge-right="40"
+                    transition="scale-transition"
+                    offset-y
+                    min-width="auto"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        v-model="dateStopFilterValue"
+                        label="Stop date"
+                        readonly
+                        prepend-icon="mdi-calendar"
+                        v-bind="attrs"
+                        v-on="on"
+                        @change="stopFilter"
+                        clearable
+                        dense
+                        @click:clear="dateStopFilterValue = null"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      width="260"
+                      no-title
+                      scrollable
+                      locale="ru-ru"
                       v-model="dateStopFilterValue"
-                      label="Stop date"
-                      readonly
-                      prepend-icon="mdi-calendar"
-                      v-bind="attrs"
-                      v-on="on"
+                      @input="menu = false"
                       @change="stopFilter"
-                      clearable
-                      dense
-                      @click:clear="dateStopFilterValue = null"
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    width="260"
-                    no-title
-                    scrollable
-                    locale="ru-ru"
-                    v-model="dateStopFilterValue"
-                    @input="menu = false"
-                    @change="stopFilter"
-                  ></v-date-picker>
-                </v-menu>
-              </td>
+                    ></v-date-picker>
+                  </v-menu>
+                </td>
 
-              <td class="filter-item">
-                <v-overflow-btn
-                  class="my-2"
-                  :items="actionList"
-                  label="Filter by action"
-                  v-model="action"
-                  editable
-                  dense
-                ></v-overflow-btn>
-              </td>
+                <td class="filter-item">
+                  <v-overflow-btn
+                    class="my-2"
+                    :items="actionList"
+                    label="Filter by action"
+                    v-model="action"
+                    editable
+                    dense
+                  ></v-overflow-btn>
+                </td>
 
-              <td class="filter-item">
-                <v-overflow-btn
-                  class="my-2"
-                  :items="orderList"
-                  label="Filter by order"
-                  v-model="order"
-                  editable
-                  dense
-                ></v-overflow-btn>
-              </td>
+                <td class="filter-item">
+                  <v-overflow-btn
+                    class="my-2"
+                    :items="orderList"
+                    label="Filter by order"
+                    v-model="order"
+                    editable
+                    dense
+                  ></v-overflow-btn>
+                </td>
 
-              <td class="filter-item"></td>
+                <td class="filter-item"></td>
 
-              <td class="filter-item">
-                <v-overflow-btn
-                  class="my-2"
-                  :items="resultList"
-                  label="Filter by result"
-                  v-model="result"
-                  editable
-                  dense
-                ></v-overflow-btn>
-              </td>
-            </tr>
-          </template>
+                <td class="filter-item">
+                  <v-overflow-btn
+                    class="my-2"
+                    :items="resultList"
+                    label="Filter by result"
+                    v-model="result"
+                    editable
+                    dense
+                  ></v-overflow-btn>
+                </td>
+              </tr>
+            </template>
 
-          <template v-slot:item.server_sn="props">
-            <v-edit-dialog
-              :return-value.sync="props.item.server_sn"
-              @save="save"
-              @cancel="cancel"
-              @open="open"
-              @close="close"
-            >
-              {{ props.item.server_sn }}
-              <template v-slot:input>
-                <v-text-field
-                  v-model="props.item.server_sn"
-                  :rules="[max25chars]"
-                  label="Edit server"
-                  single-line
-                  counter
-                ></v-text-field>
-              </template>
-            </v-edit-dialog>
-          </template>
-          <template v-slot:item.server_model="props">
-            <v-edit-dialog
-              :return-value.sync="props.item.server_model"
-              large
-              persistent
-              @save="save"
-              @cancel="cancel"
-              @open="open"
-              @close="close"
-            >
-              <div>{{ props.item.server_model }}</div>
-              <template v-slot:input>
-                <div class="mt-4 title">Update server model</div>
-                <v-text-field
-                  v-model="props.item.server_model"
-                  :rules="[max25chars]"
-                  label="Edit"
-                  single-line
-                  counter
-                  autofocus
-                ></v-text-field>
-              </template>
-            </v-edit-dialog>
-          </template>
+            <template v-slot:item.server_sn="props">
+              <v-edit-dialog
+                :return-value.sync="props.item.server_sn"
+                @save="save"
+                @cancel="cancel"
+                @open="open"
+                @close="close"
+              >
+                {{ props.item.server_sn }}
+                <template v-slot:input>
+                  <v-text-field
+                    v-model="props.item.server_sn"
+                    :rules="[max25chars]"
+                    label="Edit server"
+                    single-line
+                    counter
+                  ></v-text-field>
+                </template>
+              </v-edit-dialog>
+            </template>
+            <template v-slot:item.server_model="props">
+              <v-edit-dialog
+                :return-value.sync="props.item.server_model"
+                large
+                persistent
+                @save="save"
+                @cancel="cancel"
+                @open="open"
+                @close="close"
+              >
+                <div>{{ props.item.server_model }}</div>
+                <template v-slot:input>
+                  <div class="mt-4 title">Update server model</div>
+                  <v-text-field
+                    v-model="props.item.server_model"
+                    :rules="[max25chars]"
+                    label="Edit"
+                    single-line
+                    counter
+                    autofocus
+                  ></v-text-field>
+                </template>
+              </v-edit-dialog>
+            </template>
 
-          <template v-slot:footer>
-            <div class="overlayRight">
-              <div class="float-right">
-                <div class="text-center">
-                  <v-pagination
-                    v-model="page"
-                    :length="pageCount"
-                    :total-visible="7"
-                  ></v-pagination>
+            <template v-slot:footer>
+              <div class="overlayRight">
+                <div class="float-right">
+                  <div class="text-center">
+                    <v-pagination
+                      v-model="page"
+                      :length="pageCount"
+                      :total-visible="7"
+                    ></v-pagination>
+                  </div>
                 </div>
               </div>
-            </div>
-          </template>
-        </v-data-table>
+            </template>
+          </v-data-table>
 
-        <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
-          {{ snackText }}
-          <template v-slot:action="{ attrs }">
-            <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
-          </template>
-        </v-snackbar>
-        <!-- </v-container> -->
+          <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
+            {{ snackText }}
+            <template v-slot:action="{ attrs }">
+              <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
+            </template>
+          </v-snackbar>
+        </v-container>
       </v-sheet>
     </v-card>
     <!-- </v-layout> -->
@@ -461,14 +388,9 @@ export default {
       snackText: "",
       max25chars: (v) => v.length <= 25 || "Input too long!",
 
-      selectedRows: [],
-
       page: 1,
-      hidden: true,
       pageCount: 0,
       itemsPerPage: 10,
-      search: "",
-      loading: true,
       options: {
         sortBy: ["date_start"],
       },
@@ -478,7 +400,7 @@ export default {
       orderList: [{ text: "All", value: "" }],
       actionList: [{ text: "All", value: "" }],
       resultList: [{ text: "All", value: "" }],
-      tableData: [],
+      tableData: this.$store.state.jobs.apiData,
 
       date: "",
       menu: false,
@@ -534,13 +456,6 @@ export default {
         { text: "Result", align: "center", value: "result", index: 10 },
       ];
     },
-
-    params(nv) {
-      return {
-        ...this.options,
-        query: this.search,
-      };
-    },
   },
 
   watch: {
@@ -549,9 +464,6 @@ export default {
     },
     dialogDelete(val) {
       val || this.closeDelete();
-    },
-    optional() {
-      this.getJobs();
     },
 
     action() {
@@ -582,164 +494,23 @@ export default {
   },
 
   mounted() {
-    // this.$axios.get("http://localhost:4000/jobs").then((res) => {
-    //   this.tableData = res.data;
-    //   this.loading = true;
-    // });
+    this.$store.dispatch("jobs/getJobs", { result: ''});
   },
 
   methods: {
     async getJobs() {
-      await this.$axios
-        .post("http://localhost:5000/api/datatables/jobs", {
-          draw: 1,
-          columns: [
-            {
-              data: "server_sn",
-              name: "",
-              searchable: true,
-              orderable: true,
-              search: {
-                value: "",
-                regex: false,
-              },
-            },
-            {
-              data: "mbd_sn",
-              name: "",
-              searchable: true,
-              orderable: true,
-              search: {
-                value: "",
-                regex: false,
-              },
-            },
-            {
-              data: "server_model",
-              name: "",
-              searchable: true,
-              orderable: true,
-              search: {
-                value: this.model.toString(),
-                regex: false,
-              },
-            },
-            {
-              data: "stand",
-              name: "",
-              searchable: true,
-              orderable: true,
-              search: {
-                value: this.stand.toString(),
-                regex: false,
-              },
-            },
-            {
-              data: "start",
-              name: "",
-              searchable: true,
-              orderable: true,
-              search: {
-                value: "",
-                regex: false,
-              },
-            },
-            {
-              data: "starter",
-              name: "",
-              searchable: true,
-              orderable: true,
-              search: {
-                value: this.name.toString(),
-                regex: false,
-              },
-            },
-            {
-              data: "stop",
-              name: "",
-              searchable: true,
-              orderable: true,
-              search: {
-                value: "",
-                regex: false,
-              },
-            },
-            {
-              data: "action",
-              name: "",
-              searchable: true,
-              orderable: true,
-              search: {
-                value: this.action.toString(),
-                regex: false,
-              },
-            },
-            {
-              data: "order",
-              name: "",
-              searchable: true,
-              orderable: true,
-              search: {
-                value: this.order.toString(),
-                regex: false,
-              },
-            },
-            {
-              data: "sel_logs",
-              name: "",
-              searchable: true,
-              orderable: true,
-              search: {
-                value: "",
-                regex: false,
-              },
-            },
-            {
-              data: "result",
-              name: "",
-              searchable: true,
-              orderable: true,
-              search: {
-                value: this.result.toString(),
-                regex: false,
-              },
-            },
-          ],
-          order: [
-            {
-              column: this.options.sortBy[0] ? this.headers.find(
-                ({ value }) => value === this.options.sortBy[0]
-              ).index : 4,
-              dir:
-                this.options.sortDesc === false ||
-                this.options.sortDesc[0] === false
-                  ? "desc"
-                  : "asc",
-            },
-          ],
-          start: 0,
-          length: 0,
-          search: {
-            value: this.search,
-            regex: false,
-          },
-          optional: this.optional,
-        })
-        .then((res) => {
-          this.tableData = res.data.data;
-          this.loading = false;
-        });
+      
     },
 
-    getFiltersData() {
-      this.hidden = !this.hidden;
-      this.actionFilter();
-      this.resultFilter();
-      this.orderFilter();
-      this.modelFilter();
-      this.nameFilter();
-      this.standFilter();
-    },
+    // getFiltersData() {
+    //   this.hidden = !this.hidden;
+    //   this.actionFilter();
+    //   this.resultFilter();
+    //   this.orderFilter();
+    //   this.modelFilter();
+    //   this.nameFilter();
+    //   this.standFilter();
+    // },
 
     columnValueList(val) {
       return this.filteredtableData.map((d) => d[val]);
@@ -836,17 +607,8 @@ export default {
     },
 
     rowClicked(row) {
-      this.toggleSelection(row.date_start);
+      this.$store.dispatch('selectedRows', row.date_start)
       console.log(row);
-    },
-    toggleSelection(keyID) {
-      if (this.selectedRows.includes(keyID)) {
-        this.selectedRows = this.selectedRows.filter(
-          (selectedKeyID) => selectedKeyID !== keyID
-        );
-      } else {
-        this.selectedRows.push(keyID);
-      }
     },
   },
 };
