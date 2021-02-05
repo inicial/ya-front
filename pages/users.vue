@@ -362,11 +362,11 @@ export default {
 .theme--light.v-data-table .v-data-footer {
   border-top: thin solid rgba(0, 0, 0, 0);
   float: left;
-  width: 310px;
+  width: 320px;
 }
 .theme--dark.v-data-table .v-data-footer {
   border-top: thin solid rgba(0, 0, 0, 0);
   float: left;
-  width: 310px;
+  width: 320px;
 }
 </style>

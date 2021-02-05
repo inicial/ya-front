@@ -527,19 +527,17 @@ export default {
 }
 
 .theme--light.v-data-table .v-data-footer {
-  width: 310px;
+  width: 320px;
   border-top: thin solid rgba(0, 0, 0, 0);
   bottom: -50px;
-  left: 20px;
   z-index: 1;
   position: absolute;
 }
 
 .theme--dark.v-data-table .v-data-footer {
-  width: 310px;
+  width: 320px;
   border-top: thin solid rgba(0, 0, 0, 0);
   bottom: -50px;
-  left: 20px;
   z-index: 1;
   position: absolute;
 }
