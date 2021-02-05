@@ -1,69 +1,73 @@
 <template>
   <!-- <v-layout> -->
-  <v-card elevation="0">
+  <v-card elevation="0" min-width="800">
     <v-sheet class="overflow-y-auto" max-height="800">
       <v-container style="height: auto">
-        <v-banner sticky
-          ><v-icon slot="icon" size="36"> mdi-database-plus-outline </v-icon>
-          <h2>Vegman Servers Jobs Archive</h2>
-          <h6 v-if="selectedRows.length != 0">
-            <span v-if="selectedRows.length <= 1"
-              >{{ selectedRows.length }} row selected</span
-            >
-            <span v-else-if="selectedRows.length >= 2"
-              >+ {{ selectedRows.length }} rows selected</span
-            >
-          </h6>
-        </v-banner>
+        <Header
+          :selectedRows="selectedRows"
+          :titleHeader="titleHeader"
+          :iconHeader="iconHeader"
+        />
+
         <v-card-title>
-          <v-btn
-            tile
-            class="mb-4"
-            elevation="0"
-            outlined
-            x-small
-            @click="optional = ''"
-            >All</v-btn
-          >
-          <v-btn
-            tile
-            class="mb-4"
-            elevation="0"
-            outlined
-            x-small
-            @click="optional = 'running'"
-          >
-            Running</v-btn
-          >
+          <v-row no-gutters>
+            <v-col>
+              <v-card class="pa-2" flat tile>
+                <v-btn
+                  tile
+                  class="mb-0"
+                  elevation="0"
+                  outlined
+                  x-small
+                  @click="optional = ''"
+                  >All</v-btn>
+                <v-btn
+                  tile
+                  class="mb-0"
+                  elevation="0"
+                  outlined
+                  x-small
+                  @click="optional = 'running'"
+                >
+                  Running</v-btn>
 
-          <v-btn
-            tile
-            class="mb-4"
-            @click="getFiltersData"
-            elevation="0"
-            outlined
-            x-small
-            color="indigo"
-          >
-            <v-icon x-small>mdi-filter</v-icon>
-            Filter
-          </v-btn>
+                <v-btn
+                  tile
+                  class="mb-0"
+                  @click="getFiltersData"
+                  elevation="0"
+                  outlined
+                  x-small
+                  color="indigo"
+                >
+                  <v-icon x-small>mdi-filter</v-icon>
+                  Filter
+                </v-btn>
 
-          <v-btn
-            tile
-            class="mb-4"
-            elevation="0"
-            outlined
-            x-small
-            v-show="selectedRows.length >= 2"
-            color="green"
-            @click="resultFilterValue = 'FAILURE'"
-          >
-            <v-icon x-small>mdi-cached</v-icon>
-            Rescan</v-btn
-          >
+                <v-btn
+                  tile
+                  class="mb-0"
+                  elevation="0"
+                  outlined
+                  x-small
+                  v-show="selectedRows.length >= 2"
+                  color="green"
+                  @click="resultFilterValue = 'FAILURE'"
+                >
+                  <v-icon x-small>mdi-cached</v-icon>
+                  Rescan</v-btn>
 
-          <v-spacer></v-spacer>
+                <div v-if="selectedRows.length != 0">
+                  <span v-if="selectedRows.length <= 1" class="text-sm-body-2"
+                    >{{ selectedRows.length }} row selected</span>
+                  <span
+                    v-else-if="selectedRows.length >= 2"
+                    class="text-sm-body-2"
+                    >+ {{ selectedRows.length }} rows selected</span>
+                </div>
+              </v-card>
+            </v-col>
+          </v-row>
 
           <v-text-field
             v-model="search"
@@ -74,7 +78,7 @@
         </v-card-title>
 
         <v-data-table
-          height="450"
+          height="550"
           :headers="headers"
           :items="tableData"
           :options.sync="options"
@@ -97,9 +101,9 @@
         >
           <template v-slot:item="{ item }">
             <tr
-              :style="
+              :class="
                 selectedRows.indexOf(item.date_start) > -1
-                  ? 'background:#eeeeee;'
+                  ? 'v-data-table__selected'
                   : ''
               "
               @click="rowClicked(item)"
@@ -419,6 +423,9 @@
 export default {
   data() {
     return {
+      iconHeader: "mdi-database-plus-outline",
+      titleHeader: "Vegman Servers Jobs Archive",
+
       result: "",
       action: "",
       order: "",

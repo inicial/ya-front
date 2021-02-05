@@ -6,10 +6,9 @@
       max-height="800"
     >
       <v-container style="height: auto">
-        <v-banner sticky
-          ><v-icon slot="icon" size="36"> mdi-account-multiple </v-icon>
-          <h2>User Administration</h2>
-        </v-banner>
+
+        <Header :titleHeader="titleHeader" :iconHeader="iconHeader"/>
+
         <v-card-title>
           <v-spacer></v-spacer>
 
@@ -22,7 +21,7 @@
         </v-card-title>
 
         <v-data-table
-          height="450"
+          height="550"
           :headers="headers"
           :items="tableData"
           :options.sync="options"
@@ -204,6 +203,8 @@
 export default {
   data() {
     return {
+      titleHeader: "User Administration",
+      iconHeader: "mdi-account-multiple",
       dialog: false,
 
       snack: false,

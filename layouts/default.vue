@@ -3,7 +3,7 @@
     <v-main>
       <v-container>
         <!-- <Navbar v-if="$auth.loggedIn"/> -->
-        <Navbar/>
+        <Navbar />
         <nuxt />
       </v-container>
     </v-main>
@@ -11,11 +11,11 @@
 </template>
 
 <script>
-import Navbar from '~/components/Navbar'
+import Navbar from "~/components/Navbar";
 
 export default {
   components: {
-    Navbar
+    Navbar,
   },
 };
 </script>
