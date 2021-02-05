@@ -120,8 +120,11 @@
                 <v-layout justify-center>{{ item.server_model }}</v-layout>
               </td>
               <td>
+                <v-layout justify-center>{{ item.stand }}</v-layout>
+              </td>
+              <td>
                 <v-layout justify-center>{{
-                  $moment(item.date_start).format("YYYY-MM-DD hh:mm:ss")
+                  $moment.utc(item.date_start).format("YYYY-MM-DD HH:mm:ss")
                 }}</v-layout>
               </td>
               <td>
@@ -129,7 +132,7 @@
               </td>
               <td>
                 <v-layout justify-center>{{
-                  $moment(item.date_stop).format("YYYY-MM-DD hh:mm:ss")
+                  $moment.utc(item.date_stop).format("YYYY-MM-DD HH:mm:ss")
                 }}</v-layout>
               </td>
               <td>
@@ -224,6 +227,17 @@
                   :items="modelList"
                   label="Filter by model"
                   v-model="model"
+                  editable
+                  dense
+                ></v-overflow-btn>
+              </td>
+
+              <td class="filter-item">
+                <v-overflow-btn
+                  class="my-2"
+                  :items="standList"
+                  label="Filter by stand"
+                  v-model="stand"
                   editable
                   dense
                 ></v-overflow-btn>
@@ -431,6 +445,7 @@ export default {
       order: "",
       model: "",
       name: "",
+      stand: "",
       optional: "",
 
       snack: false,
@@ -449,8 +464,9 @@ export default {
       options: {
         sortBy: ["date_start"],
       },
-      nameList: [{ text: "All", value: null }],
+      nameList: [{ text: "All", value: "" }],
       modelList: [{ text: "All", value: "" }],
+      standList: [{ text: "All", value: "" }],
       orderList: [{ text: "All", value: "" }],
       actionList: [{ text: "All", value: "" }],
       resultList: [{ text: "All", value: "" }],
@@ -464,16 +480,16 @@ export default {
       dateStartFilterValue: null,
       dateStopFilterValue: null,
 
-      filters: {
-        server_sn: [],
-        server_model: [],
-        date_start: [],
-        date_stop: [],
-        result: [],
-        action: [],
-        order: [],
-        starter: [],
-      },
+      // filters: {
+      //   server_sn: [],
+      //   server_model: [],
+      //   date_start: [],
+      //   date_stop: [],
+      //   result: [],
+      //   action: [],
+      //   order: [],
+      //   starter: [],
+      // },
     };
   },
   head() {
@@ -484,65 +500,17 @@ export default {
   computed: {
     headers() {
       return [
-        {
-          text: "Server",
-          align: "center",
-          sortable: true,
-          value: "server_sn",
-          index: 0,
-        },
+        { text: "Server", align: "center", sortable: true, value: "server_sn", index: 0 },
         { text: "Motherboard", align: "center", value: "mbd_sn", index: 1 },
-        {
-          text: "Model",
-          align: "center",
-          value: "server_model",
-          index: 2,
-        },
-        {
-          text: "Start",
-          align: "center",
-          value: "date_start",
-          filter: this.startFilter,
-          index: 3,
-        },
-        {
-          text: "Started by",
-          align: "center",
-          value: "starter",
-          index: 4,
-        },
-        {
-          text: "Stop",
-          align: "center",
-          value: "date_stop",
-          filter: this.stopFilter,
-          index: 5,
-        },
-        {
-          text: "Action",
-          align: "center",
-          value: "action",
-          index: 6,
-        },
-        {
-          text: "Order",
-          align: "center",
-          value: "order",
-          index: 7,
-        },
-        {
-          text: "SELs",
-          align: "center",
-          value: "sel_logs",
-          filterable: false,
-          index: 8,
-        },
-        {
-          text: "Result",
-          align: "center",
-          value: "result",
-          index: 9,
-        },
+        { text: "Model", align: "center", value: "server_model", index: 2 },
+        { text: "Stand", align: "center", value: "stand", index: 3 },
+        { text: "Start", align: "center", value: "date_start", filter: this.startFilter, index: 4 },
+        { text: "Started by", align: "center", value: "starter", index: 5 },
+        { text: "Stop", align: "center", value: "date_stop", filter: this.stopFilter, index: 6 },
+        { text: "Action", align: "center", value: "action", index: 7 },
+        { text: "Order", align: "center", value: "order", index: 8 },
+        { text: "SELs", align: "center", value: "sel_logs", filterable: false, index: 9 },
+        { text: "Result", align: "center", value: "result", index: 10 },
       ];
     },
 
@@ -578,6 +546,9 @@ export default {
       this.getJobs();
     },
     name() {
+      this.getJobs();
+    },
+    stand() {
       this.getJobs();
     },
 
@@ -638,7 +609,7 @@ export default {
               searchable: true,
               orderable: true,
               search: {
-                value: "",
+                value: this.stand.toString(),
                 regex: false,
               },
             },
@@ -746,6 +717,7 @@ export default {
       this.orderFilter();
       this.modelFilter();
       this.nameFilter();
+      this.standFilter();
     },
 
     columnValueList(val) {
@@ -770,6 +742,17 @@ export default {
             models.push({ text: item.name, value: item.id });
           });
           this.modelList = this.modelList.concat(models);
+        });
+    },
+    standFilter() {
+      this.$axios
+        .get("http://localhost:5000/api/job/stands")
+        .then((res) => {
+          let stands = [];
+          res.data.stands.forEach(function (item) {
+            stands.push({ text: item.name, value: item.id });
+          });
+          this.standList = this.standList.concat(stands);
         });
     },
     orderFilter() {
