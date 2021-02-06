@@ -258,16 +258,15 @@
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
-                      v-model="dateStartFilterValue"
+                      v-model="dateStart"
                       label="Start date"
                       prepend-icon="mdi-calendar"
                       readonly
                       v-bind="attrs"
                       v-on="on"
-                      @change="stopFilter"
                       clearable
                       dense
-                      @click:clear="dateStartFilterValue = null"
+                      @click:clear="dateStart = null"
                     ></v-text-field>
                   </template>
                   <v-date-picker
@@ -275,9 +274,8 @@
                     no-title
                     scrollable
                     locale="ru-ru"
-                    v-model="dateStartFilterValue"
+                    v-model="dateStart"
                     @input="menu2 = false"
-                    @change="startFilter"
                   ></v-date-picker>
                 </v-menu>
               </td>
@@ -304,16 +302,15 @@
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
-                      v-model="dateStopFilterValue"
+                      v-model="dateStop"
                       label="Stop date"
                       readonly
                       prepend-icon="mdi-calendar"
                       v-bind="attrs"
                       v-on="on"
-                      @change="stopFilter"
                       clearable
                       dense
-                      @click:clear="dateStopFilterValue = null"
+                      @click:clear="dateStop = null"
                     ></v-text-field>
                   </template>
                   <v-date-picker
@@ -321,9 +318,8 @@
                     no-title
                     scrollable
                     locale="ru-ru"
-                    v-model="dateStopFilterValue"
+                    v-model="dateStop"
                     @input="menu = false"
-                    @change="stopFilter"
                   ></v-date-picker>
                 </v-menu>
               </td>
@@ -480,8 +476,8 @@ export default {
       modal: false,
       menu2: false,
 
-      dateStartFilterValue: null,
-      dateStopFilterValue: null,
+      dateStart: "",
+      dateStop: "",
     };
   },
   head() {
@@ -506,7 +502,6 @@ export default {
           text: "Start",
           align: "center",
           value: "date_start",
-          filter: this.startFilter,
           index: 4,
         },
         { text: "Started by", align: "center", value: "starter", index: 5 },
@@ -514,7 +509,6 @@ export default {
           text: "Stop",
           align: "center",
           value: "date_stop",
-          filter: this.stopFilter,
           index: 6,
         },
         { text: "Action", align: "center", value: "action", index: 7 },
@@ -565,6 +559,12 @@ export default {
       this.getJobs();
     },
     stand() {
+      this.getJobs();
+    },
+    dateStart() {
+      this.getJobs();
+    },
+    dateStop() {
       this.getJobs();
     },
 
@@ -635,7 +635,7 @@ export default {
               searchable: true,
               orderable: true,
               search: {
-                value: "",
+                value: this.dateStart === null? "": this.dateStart.toString(),
                 regex: false,
               },
             },
@@ -655,7 +655,7 @@ export default {
               searchable: true,
               orderable: true,
               search: {
-                value: "",
+                value: this.dateStop === null? "": this.dateStop.toString(),
                 regex: false,
               },
             },
@@ -788,18 +788,18 @@ export default {
       });
     },
     startFilter(value) {
-      if (!this.dateStartFilterValue) {
+      if (!this.dateStart) {
         return true;
       }
-      value = this.$moment(value).format("YYYY-MM-DD");
-      return value === this.dateStartFilterValue;
+      this.dateStart = this.$moment(value).format("YYYY-MM-DD");
+      return value === this.dateStart;
     },
     stopFilter(value) {
-      if (!this.dateStopFilterValue) {
+      if (!this.dateStop) {
         return true;
       }
-      value = this.$moment(value).format("YYYY-MM-DD");
-      return value === this.dateStopFilterValue;
+      this.dateStop = this.$moment(value).format("YYYY-MM-DD");
+      return value === this.dateStop;
     },
     resultFilter() {
       this.$axios.get("http://localhost:5000/api/job/results").then((res) => {

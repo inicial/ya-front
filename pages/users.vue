@@ -426,7 +426,7 @@ export default {
     },
 
     editUser(item) {
-      this.editedIndex = this.filteredtableData.indexOf(item);
+      this.editedIndex = this.tableData.indexOf(item);
       this.editedUser = Object.assign({}, item);
       this.dialog = true;
     },
@@ -442,7 +442,7 @@ export default {
     saveUser() {
       if (this.editedIndex > -1) {
         Object.assign(
-          this.filteredtableData[this.editedIndex],
+          this.tableData[this.editedIndex],
           this.editedUser
         );
       } else {
