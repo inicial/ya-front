@@ -1,15 +1,85 @@
 export const state = () => ({
-  hidden: false,
   optional: "",
   search: "",
-  apiData: [],
+  sortBy: 4,
   result: "",
+  headers: [{
+      text: "Server",
+      align: "center",
+      sortable: true,
+      value: "server_sn",
+      index: 0,
+    },
+    {
+      text: "Motherboard",
+      align: "center",
+      value: "mbd_sn",
+      index: 1
+    },
+    {
+      text: "Model",
+      align: "center",
+      value: "server_model",
+      index: 2
+    },
+    {
+      text: "Stand",
+      align: "center",
+      value: "stand",
+      index: 3,
+    },
+    {
+      text: "Start",
+      align: "center",
+      value: "date_start",
+      index: 4,
+    },
+    {
+      text: "Started by",
+      align: "center",
+      value: "starter",
+      index: 5
+    },
+    {
+      text: "Stop",
+      align: "center",
+      value: "date_stop",
+      index: 6,
+    },
+    {
+      text: "Action",
+      align: "center",
+      value: "action",
+      index: 7
+    },
+    {
+      text: "Order",
+      align: "center",
+      value: "order",
+      index: 8
+    },
+    {
+      text: "SELs",
+      align: "center",
+      value: "sel_logs",
+      filterable: false,
+      index: 9,
+    },
+    {
+      text: "Result",
+      align: "center",
+      value: "result",
+      index: 10
+    },
+  ],
+  postData: {},
+
 })
 
 export const mutations = {
-  toggle(state) {
-    state.hidden = !state.hidden
-  },
+  // toggle(state) {
+  //   state.hidden = !state.hidden
+  // },
   search(state, search) {
     state.search = search
   },
@@ -19,145 +89,27 @@ export const mutations = {
   setApiData(state, data) {
     state.apiData = data
   },
+  setPostData(state, data) {
+    state.postData = ''
+  }
 }
 
 export const actions = {
-  getJobs({
-    state,
-    commit
-  }) {
-    //http://localhost:5000/api/datatables/jobs
-    this.$axios
-      .post('http://localhost:5000/api/datatables/jobs', {
-        draw: 1,
-        columns: [{
-            data: "server_sn",
-            name: "",
-            searchable: true,
-            orderable: true,
-            search: {
-              value: "",
-              regex: false,
-            },
-          },
-          {
-            data: "mbd_sn",
-            name: "",
-            searchable: true,
-            orderable: true,
-            search: {
-              value: "",
-              regex: false,
-            },
-          },
-          {
-            data: "server_model",
-            name: "",
-            searchable: true,
-            orderable: true,
-            search: {
-              value: "",
-              regex: false,
-            },
-          },
-          {
-            data: "stand",
-            name: "",
-            searchable: true,
-            orderable: true,
-            search: {
-              value: "",
-              regex: false,
-            },
-          },
-          {
-            data: "start",
-            name: "",
-            searchable: true,
-            orderable: true,
-            search: {
-              value: "",
-              regex: false,
-            },
-          },
-          {
-            data: "starter",
-            name: "",
-            searchable: true,
-            orderable: true,
-            search: {
-              value: "",
-              regex: false,
-            },
-          },
-          {
-            data: "stop",
-            name: "",
-            searchable: true,
-            orderable: true,
-            search: {
-              value: "",
-              regex: false,
-            },
-          },
-          {
-            data: "action",
-            name: "",
-            searchable: true,
-            orderable: true,
-            search: {
-              value: "",
-              regex: false,
-            },
-          },
-          {
-            data: "order",
-            name: "",
-            searchable: true,
-            orderable: true,
-            search: {
-              value: "",
-              regex: false,
-            },
-          },
-          {
-            data: "sel_logs",
-            name: "",
-            searchable: true,
-            orderable: true,
-            search: {
-              value: "",
-              regex: false,
-            },
-          },
-          {
-            data: "result",
-            name: "",
-            searchable: true,
-            orderable: true,
-            search: {
-              value: "",
-              regex: false,
-            },
-          },
-        ],
-        order: [{
-          column: 4,
-          dir: "desc"
-        }, ],
-        start: 0,
-        length: 0,
-        search: {
-          value: state.search,
-          regex: false,
-        },
-        optional: state.result,
-      })
-      .then((res) => {
-        commit('setApiData', res.data.data)
-        this.commit('setLoading', false)
-      });
-  },
+  // GET_DATA({
+  //   state,
+  //   commit
+  // }, method, data) {
+  //   //http://localhost:5000/api/datatables/jobs
+  //   this.$axios({
+  //     method: method,
+  //     url: 'http://localhost:5000/api/datatables/jobs',
+  //     data: data
+  //   })
+  //     .then((res) => {
+  //       commit('setApiData', res.data.data)
+  //       this.commit('setLoading', false)
+  //     });
+  // },
   search({
     commit
   }, search) {

@@ -1,550 +1,188 @@
 <template>
-  <!-- <v-layout> -->
   <v-card elevation="0" min-width="800">
     <v-sheet class="overflow-y-auto" max-height="800">
       <v-container style="height: auto">
         <Header />
 
-        <Filters :pageName="$store.commit('page', 'jobs')" />
+        <Filters />
 
-        <v-data-table
-          height="550"
-          :headers="headers"
-          :items="$store.state.jobs.apiData"
-          :options.sync="options"
-          :page.sync="page"
-          @page-count="pageCount = $event"
-          :items-per-page="itemsPerPage"
-          :loading="$store.state.loading"
-          elevation="0"
-          item-key="date_start"
-          fixed-header
-          dense
-          :footer-props="{
-            showFirstLastPage: false,
-            firstIcon: '',
-            lastIcon: '',
-            prevIcon: '',
-            nextIcon: '',
-          }"
-          class="text-sm-caption"
-        >
-          <template v-slot:item="{ item }">
-            <tr
-              :class="
-                $store.state.selectedRows.indexOf(item.date_start) > -1
-                  ? 'v-data-table__selected'
-                  : ''
-              "
-              @click="rowClicked(item)"
-            >
-              <td>
-                <v-layout justify-center>{{ item.server_sn }}</v-layout>
-              </td>
-              <td>
-                <v-layout justify-center>
-                  <a>{{ item.mbd_sn }}</a>
-                </v-layout>
-              </td>
-              <td>
-                <v-layout justify-center>{{ item.server_model }}</v-layout>
-              </td>
-              <td>
-                <v-layout justify-center>{{ item.stand }}</v-layout>
-              </td>
-              <td>
-                <v-layout justify-center>{{
-                  $moment.utc(item.date_start).format("YYYY-MM-DD HH:mm:ss")
-                }}</v-layout>
-              </td>
-              <td>
-                <v-layout justify-center>{{ item.starter }}</v-layout>
-              </td>
-              <td>
-                <v-layout justify-center>{{
-                  $moment.utc(item.date_stop).format("YYYY-MM-DD HH:mm:ss")
-                }}</v-layout>
-              </td>
-              <td>
-                <v-layout justify-center>{{ item.action }}</v-layout>
-              </td>
-              <td>
-                <v-layout justify-center
-                  >[{{ item.server_sn }}] {{ item.order }}</v-layout
-                >
-              </td>
-              <td>
-                <v-layout justify-center>
-                  <a href="/job_sels">{{ item.sel_logs }}</a>
-                </v-layout>
-              </td>
-              <td>
-                <v-layout justify-center>
-                  <v-chip
-                    color="green"
-                    small
-                    text-color="white"
-                    class="ma-0"
-                    v-if="item.result.toLowerCase() === 'success'"
-                  >
-                    <v-icon size="18" class="mr-1"> mdi-check-circle </v-icon>
-                    {{ item.result.toLowerCase() }}</v-chip
-                  >
-                  <v-chip
-                    color="error"
-                    small
-                    text-color="white"
-                    class="ma-0"
-                    v-if="item.result.toLowerCase() === 'failure'"
-                  >
-                    <v-icon size="18" class="mr-1"> mdi-close-circle </v-icon>
-                    <b>{{ item.result.toLowerCase() }}</b></v-chip
-                  >
+        <DataTable :headers="$store.state.jobs.headers" />
 
-                  <v-chip
-                    color="orange"
-                    small
-                    text-color="white"
-                    class="ma-0"
-                    v-if="item.result.toLowerCase() === 'error'"
-                  >
-                    <v-icon size="18" class="mr-1"> mdi-close-circle </v-icon>
-                    <b>{{ item.result.toLowerCase() }}</b></v-chip
-                  >
-
-                  <v-chip
-                    color="secondary"
-                    small
-                    text-color="white"
-                    class="ma-0"
-                    v-if="item.result.toLowerCase() === 'running'"
-                    link
-                    to="/users"
-                  >
-                    <v-progress-circular
-                      indeterminate
-                      color="white"
-                      :size="16"
-                    ></v-progress-circular>
-                    <b>{{ item.result }}</b>
-                  </v-chip>
-
-                  <v-chip
-                    color="info"
-                    small
-                    text-color="white"
-                    class="ma-0"
-                    v-if="item.result.toLowerCase() === 'interrupted'"
-                    link
-                    to="/users"
-                  >
-                    <v-icon size="18" class="mr-1"> mdi-information </v-icon>
-                    <b>stopped by {{ item.stopper }}</b>
-                  </v-chip>
-                </v-layout>
-              </td>
-            </tr>
-          </template>
-
-          <template v-slot:header v-if="$store.state.hidden">
-            <tr>
-              <td></td>
-              <td></td>
-
-              <td class="filter-item">
-                <v-overflow-btn
-                  class="my-2"
-                  :items="modelList"
-                  label="Filter by model"
-                  v-model="model"
-                  editable
-                  dense
-                ></v-overflow-btn>
-              </td>
-
-              <td class="filter-item">
-                <v-overflow-btn
-                  class="my-2"
-                  :items="standList"
-                  label="Filter by stand"
-                  v-model="stand"
-                  editable
-                  dense
-                ></v-overflow-btn>
-              </td>
-
-              <td class="filter-item">
-                <v-menu
-                  v-model="menu2"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="dateStartFilterValue"
-                      label="Start date"
-                      prepend-icon="mdi-calendar"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                      @change="stopFilter"
-                      clearable
-                      dense
-                      @click:clear="dateStartFilterValue = null"
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    width="260"
-                    no-title
-                    scrollable
-                    locale="ru-ru"
-                    v-model="dateStartFilterValue"
-                    @input="menu2 = false"
-                    @change="startFilter"
-                  ></v-date-picker>
-                </v-menu>
-              </td>
-
-              <td class="filter-item">
-                <v-overflow-btn
-                  class="my-2"
-                  :items="nameList"
-                  label="Filter by user"
-                  v-model="name"
-                  editable
-                  dense
-                ></v-overflow-btn>
-              </td>
-
-              <td class="filter-item">
-                <v-menu
-                  v-model="menu"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="dateStopFilterValue"
-                      label="Stop date"
-                      readonly
-                      prepend-icon="mdi-calendar"
-                      v-bind="attrs"
-                      v-on="on"
-                      @change="stopFilter"
-                      clearable
-                      dense
-                      @click:clear="dateStopFilterValue = null"
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    width="260"
-                    no-title
-                    scrollable
-                    locale="ru-ru"
-                    v-model="dateStopFilterValue"
-                    @input="menu = false"
-                    @change="stopFilter"
-                  ></v-date-picker>
-                </v-menu>
-              </td>
-
-              <td class="filter-item">
-                <v-overflow-btn
-                  class="my-2"
-                  :items="actionList"
-                  label="Filter by action"
-                  v-model="action"
-                  editable
-                  dense
-                ></v-overflow-btn>
-              </td>
-
-              <td class="filter-item">
-                <v-overflow-btn
-                  class="my-2"
-                  :items="orderList"
-                  label="Filter by order"
-                  v-model="order"
-                  editable
-                  dense
-                ></v-overflow-btn>
-              </td>
-
-              <td class="filter-item"></td>
-
-              <td class="filter-item">
-                <v-overflow-btn
-                  class="my-2"
-                  :items="resultList"
-                  label="Filter by result"
-                  v-model="result"
-                  editable
-                  dense
-                ></v-overflow-btn>
-              </td>
-            </tr>
-          </template>
-
-          <template v-slot:item.server_sn="props">
-            <v-edit-dialog
-              :return-value.sync="props.item.server_sn"
-              @save="save"
-              @cancel="cancel"
-              @open="open"
-              @close="close"
-            >
-              {{ props.item.server_sn }}
-              <template v-slot:input>
-                <v-text-field
-                  v-model="props.item.server_sn"
-                  :rules="[max25chars]"
-                  label="Edit server"
-                  single-line
-                  counter
-                ></v-text-field>
-              </template>
-            </v-edit-dialog>
-          </template>
-          <template v-slot:item.server_model="props">
-            <v-edit-dialog
-              :return-value.sync="props.item.server_model"
-              large
-              persistent
-              @save="save"
-              @cancel="cancel"
-              @open="open"
-              @close="close"
-            >
-              <div>{{ props.item.server_model }}</div>
-              <template v-slot:input>
-                <div class="mt-4 title">Update server model</div>
-                <v-text-field
-                  v-model="props.item.server_model"
-                  :rules="[max25chars]"
-                  label="Edit"
-                  single-line
-                  counter
-                  autofocus
-                ></v-text-field>
-              </template>
-            </v-edit-dialog>
-          </template>
-
-          <template v-slot:footer>
-            <div class="overlayRight">
-              <div class="float-right">
-                <div class="text-center">
-                  <v-pagination
-                    v-model="page"
-                    :length="pageCount"
-                    :total-visible="7"
-                  ></v-pagination>
-                </div>
-              </div>
-            </div>
-          </template>
-        </v-data-table>
-
-        <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
-          {{ snackText }}
-          <template v-slot:action="{ attrs }">
-            <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
-          </template>
-        </v-snackbar>
+        <SnackBar />
       </v-container>
     </v-sheet>
   </v-card>
-  <!-- </v-layout> -->
 </template>
 
 <script>
 export default {
-  data() {
-    return {
-      snack: false,
-      snackColor: "",
-      snackText: "",
-      max25chars: (v) => v.length <= 25 || "Input too long!",
-
-      page: 1,
-      pageCount: 0,
-      itemsPerPage: 10,
-      options: {
-        sortBy: ["date_start"],
-      },
-
-      date: "",
-      menu: false,
-      modal: false,
-      menu2: false,
-    };
-  },
   head() {
     return {
       title: "Jobs Archive",
     };
   },
   computed: {
-    headers() {
-      return [
-        {
-          text: "Server",
-          align: "center",
-          sortable: true,
-          value: "server_sn",
-          index: 0,
+    data() {
+      return {
+        draw: 1,
+        columns: [
+          {
+            data: "server_sn",
+            name: "",
+            searchable: true,
+            orderable: true,
+            search: {
+              value: "",
+              regex: false,
+            },
+          },
+          {
+            data: "mbd_sn",
+            name: "",
+            searchable: true,
+            orderable: true,
+            search: {
+              value: "",
+              regex: false,
+            },
+          },
+          {
+            data: "server_model",
+            name: "",
+            searchable: true,
+            orderable: true,
+            search: {
+              value: "",
+              regex: false,
+            },
+          },
+          {
+            data: "stand",
+            name: "",
+            searchable: true,
+            orderable: true,
+            search: {
+              value: "",
+              regex: false,
+            },
+          },
+          {
+            data: "start",
+            name: "",
+            searchable: true,
+            orderable: true,
+            search: {
+              value: "",
+              regex: false,
+            },
+          },
+          {
+            data: "starter",
+            name: "",
+            searchable: true,
+            orderable: true,
+            search: {
+              value: "",
+              regex: false,
+            },
+          },
+          {
+            data: "stop",
+            name: "",
+            searchable: true,
+            orderable: true,
+            search: {
+              value: "",
+              regex: false,
+            },
+          },
+          {
+            data: "action",
+            name: "",
+            searchable: true,
+            orderable: true,
+            search: {
+              value: "",
+              regex: false,
+            },
+          },
+          {
+            data: "order",
+            name: "",
+            searchable: true,
+            orderable: true,
+            search: {
+              value: "",
+              regex: false,
+            },
+          },
+          {
+            data: "sel_logs",
+            name: "",
+            searchable: true,
+            orderable: true,
+            search: {
+              value: "",
+              regex: false,
+            },
+          },
+          {
+            data: "result",
+            name: "",
+            searchable: true,
+            orderable: true,
+            search: {
+              value: "",
+              regex: false,
+            },
+          },
+        ],
+        order: [
+          {
+            column: this.$store.state.jobs.sortBy,
+            dir: "desc",
+          },
+        ],
+        start: 0,
+        length: 0,
+        search: {
+          value: this.$store.state.jobs.search,
+          regex: false,
         },
-        { text: "Motherboard", align: "center", value: "mbd_sn", index: 1 },
-        { text: "Model", align: "center", value: "server_model", index: 2 },
-        { text: "Stand", align: "center", value: "stand", index: 3 },
-        {
-          text: "Start",
-          align: "center",
-          value: "date_start",
-          filter: this.startFilter,
-          index: 4,
-        },
-        { text: "Started by", align: "center", value: "starter", index: 5 },
-        {
-          text: "Stop",
-          align: "center",
-          value: "date_stop",
-          filter: this.stopFilter,
-          index: 6,
-        },
-        { text: "Action", align: "center", value: "action", index: 7 },
-        { text: "Order", align: "center", value: "order", index: 8 },
-        {
-          text: "SELs",
-          align: "center",
-          value: "sel_logs",
-          filterable: false,
-          index: 9,
-        },
-        { text: "Result", align: "center", value: "result", index: 10 },
-      ];
+        optional: this.$store.state.jobs.result,
+      };
     },
     params(nv) {
       return {
         ...this.options,
-        query: this.$store.dispatch("jobs/getJobs"),
+        query: this.$store.dispatch("GET_DATA", {
+          method: "post",
+          path: "/api/datatables/jobs",
+          data: this.data,
+        }),
       };
     },
   },
 
   watch: {
-    dialog(val) {
-      val || this.close();
-    },
-    dialogDelete(val) {
-      val || this.closeDelete();
-    },
-
     params: {
       handler() {
-        this.$store.dispatch("jobs/getJobs");
+        this.$store.dispatch("GET_DATA", {
+          method: "post",
+          path: "/api/datatables/jobs",
+          data: this.data,
+        });
       },
       deep: true,
     },
+
   },
 
   mounted() {
-    this.$store.dispatch("jobs/getJobs");
-    this.$store.commit("title", "Vegman Servers Jobs Archive");
-    this.$store.commit("icon", "mdi-database-plus-outline");
-  },
-
-  methods: {
-    columnValueList(val) {
-      return this.filteredtableData.map((d) => d[val]);
-    },
-
-    save() {
-      this.snack = true;
-      this.snackColor = "success";
-      this.snackText = "Data saved";
-    },
-    cancel() {
-      this.snack = true;
-      this.snackColor = "error";
-      this.snackText = "Canceled";
-    },
-    open() {
-      this.snack = true;
-      this.snackColor = "info";
-      this.snackText = "Dialog opened";
-    },
-    close() {
-      console.log("Dialog closed");
-    },
-
-    rowClicked(row) {
-      this.$store.dispatch("selectedRows", row.date_start);
-      console.log(row);
-    },
+    this.$store.commit("setPath", "jobs");
+    this.$store.commit("setHeaderText", "Vegman Servers Jobs Archive");
+    this.$store.commit("setIcon", "mdi-database-plus-outline");
+    this.$store.commit("setSortBy", 4);
   },
 };
 </script>
-
-<style>
-.v-data-footer__icons-after {
-  display: none;
-}
-.v-data-footer__icons-before {
-  display: none;
-}
-.v-pagination {
-  margin-top: 10px;
-}
-.filter-item {
-  padding: 2px;
-}
-.v-progress-circular {
-  margin-right: 0.5rem;
-}
-
-.overlayLeft {
-  top: 80px;
-  left: 20px;
-  z-index: 1;
-  position: absolute;
-}
-.overlayRight {
-  bottom: -50px;
-  right: 20px;
-  z-index: 1;
-  position: absolute;
-}
-
-.v-data-table-header th {
-  text-transform: uppercase;
-}
-
-.theme--light.v-data-table .v-data-footer {
-  width: 320px;
-  border-top: thin solid rgba(0, 0, 0, 0);
-  bottom: -50px;
-  z-index: 1;
-  position: absolute;
-}
-
-.theme--dark.v-data-table .v-data-footer {
-  width: 320px;
-  border-top: thin solid rgba(0, 0, 0, 0);
-  bottom: -50px;
-  z-index: 1;
-  position: absolute;
-}
-.theme--light.v-banner.v-sheet {
-  background-color: white;
-}
-.theme--dark.v-banner.v-sheet {
-  background-color: #1e1e1e;
-}
-</style>
