@@ -4,11 +4,19 @@
     <v-card elevation="0" min-width="800">
       <v-sheet class="overflow-y-auto" max-height="800">
         <!-- <v-container style="height: auto"> -->
-        <Header
-          :selectedRows="selectedRows"
-          :titleHeader="titleHeader"
-          :iconHeader="iconHeader"
-        />
+
+        <v-banner sticky
+          ><v-icon slot="icon" size="36"> mdi-database-plus-outline </v-icon>
+          <h2>Vegman Servers Jobs Archive</h2>
+          <h6 v-if="selectedRows.length != 0">
+            <span v-if="selectedRows.length <= 1"
+              >{{ selectedRows.length }} row selected</span
+            >
+            <span v-else-if="selectedRows.length >= 2"
+              >+ {{ selectedRows.length }} rows selected</span
+            >
+          </h6>
+        </v-banner>
 
         <v-card-title>
           <v-row no-gutters>
@@ -60,17 +68,6 @@
                   <v-icon x-small>mdi-cached</v-icon>
                   Rescan</v-btn
                 >
-
-                <div v-if="selectedRows.length != 0">
-                  <span v-if="selectedRows.length <= 1" class="text-sm-body-2"
-                    >{{ selectedRows.length }} row selected</span
-                  >
-                  <span
-                    v-else-if="selectedRows.length >= 2"
-                    class="text-sm-body-2"
-                    >+ {{ selectedRows.length }} rows selected</span
-                  >
-                </div>
               </v-card>
             </v-col>
           </v-row>
@@ -445,8 +442,6 @@
 export default {
   data() {
     return {
-      iconHeader: "mdi-database-plus-outline",
-      titleHeader: "Vegman Servers Jobs Archive",
 
       result: "",
       action: "",
@@ -887,7 +882,7 @@ export default {
 }
 
 .theme--light.v-data-table .v-data-footer {
-  width: 310px;
+  width: 320px;
   border-top: thin solid rgba(0, 0, 0, 0);
   bottom: -50px;
   left: 20px;
@@ -896,7 +891,7 @@ export default {
 }
 
 .theme--dark.v-data-table .v-data-footer {
-  width: 310px;
+  width: 320px;
   border-top: thin solid rgba(0, 0, 0, 0);
   bottom: -50px;
   left: 20px;

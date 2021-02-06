@@ -7,7 +7,10 @@
     >
       <v-container style="height: auto">
 
-        <Header :titleHeader="titleHeader" :iconHeader="iconHeader"/>
+        <v-banner sticky
+          ><v-icon slot="icon" size="36"> mdi-account-multiple </v-icon>
+          <h2>User Adminstration</h2>
+        </v-banner>
 
         <v-card-title>
           <v-spacer></v-spacer>
@@ -31,7 +34,6 @@
           :items-per-page="itemsPerPage"
           :loading="loading"
           elevation="0"
-          show-select
           fixed-header
           dense
           :footer-props="{
