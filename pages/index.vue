@@ -183,6 +183,7 @@ export default {
     this.$store.commit("setHeaderText", "Vegman Servers Jobs Archive");
     this.$store.commit("setIcon", "mdi-database-plus-outline");
     this.$store.commit("setSortBy", 4);
+    this.$store.commit("setItemsPerPage", 10);
   },
 };
 </script>

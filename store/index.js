@@ -93,6 +93,9 @@ export const mutations = {
   setApiData(state, data) {
     state.data = data
   },
+  setItemsPerPage(state, data) {
+    state.itemsPerPage = data
+  },
 }
 
 export const actions = {

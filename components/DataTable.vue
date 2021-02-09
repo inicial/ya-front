@@ -1,5 +1,6 @@
 <template>
   <v-data-table
+    v-model="selected"
     height="550"
     :headers="headers"
     :items="$store.state.data"
@@ -10,6 +11,8 @@
     :loading="$store.state.loading"
     elevation="0"
     fixed-header
+    item-key="id"
+    @click:row="rowClicked"
     dense
     :footer-props="{
       showFirstLastPage: false,
@@ -20,122 +23,109 @@
     }"
     class="text-sm-caption"
   >
-    <template v-slot:item="{ item }" v-if="$store.state.path === 'jobs'">
-      <tr
-        :class="
-          $store.state.selectedRows.indexOf(item.date_start) > -1
-            ? 'v-data-table__selected'
-            : ''
-        "
-        @click="rowClicked(item)"
+    <template v-slot:item.server_sn="props"
+      ><a>{{ props.item.server_sn }}</a></template
+    >
+
+    <template v-slot:item.result="props">
+      <v-chip
+        color="green"
+        small
+        text-color="white"
+        class="ma-0"
+        v-if="props.item.result === 'SUCCESS'"
       >
-        <td>
-          <v-layout justify-center>{{ item.server_sn }}</v-layout>
-        </td>
-        <td>
-          <v-layout justify-center>
-            <a>{{ item.mbd_sn }}</a>
-          </v-layout>
-        </td>
-        <td>
-          <v-layout justify-center>{{ item.server_model }}</v-layout>
-        </td>
-        <td>
-          <v-layout justify-center>{{ item.stand }}</v-layout>
-        </td>
-        <td>
-          <v-layout justify-center>{{
-            $moment.utc(item.date_start).format("YYYY-MM-DD HH:mm:ss")
-          }}</v-layout>
-        </td>
-        <td>
-          <v-layout justify-center>{{ item.starter }}</v-layout>
-        </td>
-        <td>
-          <v-layout justify-center>{{
-            $moment.utc(item.date_stop).format("YYYY-MM-DD HH:mm:ss")
-          }}</v-layout>
-        </td>
-        <td>
-          <v-layout justify-center>{{ item.action }}</v-layout>
-        </td>
-        <td>
-          <v-layout justify-center
-            >[{{ item.server_sn }}] {{ item.order }}</v-layout
-          >
-        </td>
-        <td>
-          <v-layout justify-center>
-            <a href="/job_sels">{{ item.sel_logs }}</a>
-          </v-layout>
-        </td>
-        <td>
-          <v-layout justify-center>
-            <v-chip
-              color="green"
-              small
-              text-color="white"
-              class="ma-0"
-              v-if="item.result.toLowerCase() === 'success'"
-            >
-              <v-icon size="18" class="mr-1"> mdi-check-circle </v-icon>
-              {{ item.result.toLowerCase() }}</v-chip
-            >
-            <v-chip
-              color="error"
-              small
-              text-color="white"
-              class="ma-0"
-              v-if="item.result.toLowerCase() === 'failure'"
-            >
-              <v-icon size="18" class="mr-1"> mdi-close-circle </v-icon>
-              <b>{{ item.result.toLowerCase() }}</b></v-chip
-            >
+        <v-icon size="18" class="mr-1"> mdi-check-circle </v-icon>
+        {{ props.item.result }}</v-chip
+      >
+      <v-chip
+        color="error"
+        small
+        text-color="white"
+        class="ma-0"
+        v-if="props.item.result === 'FAILURE'"
+      >
+        <v-icon size="18" class="mr-1"> mdi-close-circle </v-icon>
+        <b>{{ props.item.result }}</b></v-chip
+      >
 
-            <v-chip
-              color="orange"
-              small
-              text-color="white"
-              class="ma-0"
-              v-if="item.result.toLowerCase() === 'error'"
-            >
-              <v-icon size="18" class="mr-1"> mdi-close-circle </v-icon>
-              <b>{{ item.result.toLowerCase() }}</b></v-chip
-            >
+      <v-chip
+        color="orange"
+        small
+        text-color="white"
+        class="ma-0"
+        v-if="props.item.result === 'ERROR'"
+      >
+        <v-icon size="18" class="mr-1"> mdi-close-circle </v-icon>
+        <b>{{ props.item.result }}</b></v-chip
+      >
 
-            <v-chip
-              color="secondary"
-              small
-              text-color="white"
-              class="ma-0"
-              v-if="item.result.toLowerCase() === 'running'"
-              link
-              to="/users"
-            >
-              <v-progress-circular
-                indeterminate
-                color="white"
-                :size="16"
-              ></v-progress-circular>
-              <b>{{ item.result }}</b>
-            </v-chip>
+      <v-chip
+        color="secondary"
+        small
+        text-color="white"
+        class="ma-0"
+        v-if="props.item.result === 'RUNNING'"
+        link
+        to="/users"
+      >
+        <v-progress-circular
+          indeterminate
+          color="white"
+          :size="16"
+        ></v-progress-circular>
+        <b>{{ props.item.result }}</b>
+      </v-chip>
 
-            <v-chip
-              color="info"
-              small
-              text-color="white"
-              class="ma-0"
-              v-if="item.result.toLowerCase() === 'interrupted'"
-              link
-              to="/users"
-            >
-              <v-icon size="18" class="mr-1"> mdi-information </v-icon>
-              <b>stopped by {{ item.stopper }}</b>
-            </v-chip>
-          </v-layout>
-        </td>
-      </tr>
+      <v-chip
+        color="info"
+        small
+        text-color="white"
+        class="ma-0"
+        v-if="props.item.result === 'INTERRUPTED'"
+        link
+        to="/users"
+      >
+        <v-icon size="18" class="mr-1"> mdi-information </v-icon>
+        <b>stopped by {{ props.item.stopper }}</b>
+      </v-chip>
     </template>
+
+    <template v-slot:item.online="{ item }">
+      <v-icon
+        color="green"
+        size="18"
+        text-color="white"
+        class="ma-2"
+        v-if="item.online === true"
+        >mdi-checkbox-blank-circle</v-icon
+      >
+
+      <v-icon
+        color="gray"
+        size="18"
+        text-color="white"
+        class="ma-2"
+        v-if="item.online === false"
+        >mdi-cancel</v-icon
+      >
+    </template>
+
+    <template v-slot:item.date_start="props">{{
+      $moment.utc(props.item.date_start).format("YYYY-MM-DD HH:mm:ss")
+    }}</template>
+
+    <template v-slot:item.date_stop="props">{{
+      $moment.utc(props.item.date_stop).format("YYYY-MM-DD HH:mm:ss")
+    }}</template>
+
+    <template v-slot:item.username="props"
+      ><a>{{ props.item.username }}</a></template
+    >
+
+    <template v-slot:item.sel_logs="props"
+      ><a>{{ props.item.sel_logs }}</a></template
+    >
 
     <template v-slot:header v-if="$store.state.hidden">
       <tr>
@@ -211,7 +201,7 @@
             <v-pagination
               v-model="page"
               :length="pageCount"
-              :total-visible="7"
+              :total-visible="8"
             ></v-pagination>
           </div>
         </div>
@@ -222,84 +212,30 @@
 
 <script>
 export default {
-    props: {
-        headers: {
-            type: Array,
-            require: true,
-        }
+  props: {
+    headers: {
+      type: Array,
+      require: true,
     },
+  },
   data() {
     return {
+      selected: [],
       page: this.$store.state.page,
       pageCount: this.$store.state.pageCount,
       itemsPerPage: this.$store.state.itemsPerPage,
       options: {
         sortBy: [this.$store.state.sortBy],
       },
-        max25chars: (v) => v.length <= 25 || "Input too long!",
     };
   },
-//   computed: {
-    // headers() {
-    //   return [
-    //     {
-    //       text: "Server",
-    //       align: "center",
-    //       sortable: true,
-    //       value: "server_sn",
-    //       index: 0,
-    //     },
-    //     { text: "Motherboard", align: "center", value: "mbd_sn", index: 1 },
-    //     { text: "Model", align: "center", value: "server_model", index: 2 },
-    //     { text: "Stand", align: "center", value: "stand", index: 3 },
-    //     {
-    //       text: "Start",
-    //       align: "center",
-    //       value: "date_start",
-    //       filter: this.startFilter,
-    //       index: 4,
-    //     },
-    //     { text: "Started by", align: "center", value: "starter", index: 5 },
-    //     {
-    //       text: "Stop",
-    //       align: "center",
-    //       value: "date_stop",
-    //       filter: this.stopFilter,
-    //       index: 6,
-    //     },
-    //     { text: "Action", align: "center", value: "action", index: 7 },
-    //     { text: "Order", align: "center", value: "order", index: 8 },
-    //     {
-    //       text: "SELs",
-    //       align: "center",
-    //       value: "sel_logs",
-    //       filterable: false,
-    //       index: 9,
-    //     },
-    //     { text: "Result", align: "center", value: "result", index: 10 },
-    //   ];
-    // },
-//     params(nv) {
-//       return {
-//         ...this.options,
-//         query: this.$store.state.search,
-//       };
-//     },
-//   },
-
-//   watch: {
-//     params: {
-//       handler() {
-//         this.$store.dispatch("GET_DATA", {method: 'post', path: '/api/datatables/jobs', data: ''});
-//       },
-//       deep: true,
-//     },
-//   },
 
   methods: {
-    rowClicked(row) {
-      this.$store.dispatch("selectedRows", row.date_start);
-      console.log(row);
+    rowClicked(value, row) {
+      this.$store.dispatch("selectedRows", value);
+      if (row.isSelected) row.select(false);
+      else row.select(true);
+      console.log(this.$store.state.selectedRows);
     },
     save() {
       this.snack = true;
@@ -321,7 +257,7 @@ export default {
     },
 
     editUser(item) {
-      this.editedIndex = this.filteredtableData.indexOf(item);
+      this.editedIndex = this.$store.state.data.indexOf(item);
       this.editedUser = Object.assign({}, item);
       this.dialog = true;
     },
