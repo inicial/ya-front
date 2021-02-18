@@ -306,7 +306,7 @@ export default {
   methods: {
     async getUsers() {
       await this.$axios
-        .post("http://localhost:5000/api/datatables/users", {
+        .post("/api/datatables/users", {
           draw: 1,
           columns: [
             {
@@ -398,7 +398,7 @@ export default {
             value: this.search,
             regex: false,
           },
-          optional: "null",
+          optional: "",
         })
         .then((res) => {
           this.tableData = res.data.data;

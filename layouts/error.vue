@@ -1,5 +1,5 @@
 <template>
-  <v-app dark>
+  <v-app>
 
     <main>
       <div class="container">
@@ -719,7 +719,8 @@
 
 <script>
 export default {
-  layout: "base",
+  layout: "default",
+  middleware: 'auth',
   props: {
     error: {
       type: Object,

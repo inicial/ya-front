@@ -2,8 +2,8 @@
   <v-app>
     <v-main>
       <v-container>
-        <!-- <Navbar v-if="$auth.loggedIn"/> -->
-        <Navbar />
+        <Navbar v-if="$auth.loggedIn && $auth.$storage.getUniversal('role') === 'admin'"/>
+        <!-- <Navbar /> -->
         <nuxt />
       </v-container>
     </v-main>

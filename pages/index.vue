@@ -90,7 +90,7 @@
           :items-per-page="itemsPerPage"
           :loading="loading"
           elevation="0"
-          item-key="date_start"
+          item-key="job_id"
           v-model="selectedRows"
           fixed-header
           dense
@@ -106,11 +106,11 @@
           <template v-slot:item="{ item }">
             <tr
               :class="
-                selectedRows.indexOf(item.date_start) > -1
+                selectedRows.indexOf(item.job_id) > -1
                   ? 'v-data-table__selected'
                   : ''
               "
-              @click="rowClicked(item)"
+              @click.alt="rowClicked(item)"
             >
               <td>
                 <v-layout justify-center>{{ item.server_sn }}</v-layout>
@@ -438,6 +438,7 @@
 export default {
   data() {
     return {
+      dialog: false,
 
       result: "",
       action: "",
@@ -586,7 +587,7 @@ export default {
   methods: {
     async getJobs() {
       await this.$axios
-        .post("http://localhost:5000/api/datatables/jobs", {
+        .post("/api/datatables/jobs", {
           draw: 1,
           columns: [
             {
@@ -741,7 +742,7 @@ export default {
     },
 
     nameFilter() {
-      this.$axios.get("http://localhost:5000/api/job/users").then((res) => {
+      this.$axios.get("/api/job/users").then((res) => {
         let users = [];
         res.data.users.forEach(function (item) {
           users.push({ text: item.username, value: item.id });
@@ -751,7 +752,7 @@ export default {
     },
     modelFilter() {
       this.$axios
-        .get("http://localhost:5000/api/servers/models")
+        .get("/api/servers/models")
         .then((res) => {
           let models = [];
           res.data.models.forEach(function (item) {
@@ -761,7 +762,7 @@ export default {
         });
     },
     standFilter() {
-      this.$axios.get("http://localhost:5000/api/job/stands").then((res) => {
+      this.$axios.get("/api/job/stands").then((res) => {
         let stands = [];
         res.data.stands.forEach(function (item) {
           stands.push({ text: item.name, value: item.id });
@@ -770,7 +771,7 @@ export default {
       });
     },
     orderFilter() {
-      this.$axios.get("http://localhost:5000/api/job/orders").then((res) => {
+      this.$axios.get("/api/job/orders").then((res) => {
         let orders = [];
         res.data.orders.forEach(function (item) {
           orders.push({ text: item.name, value: item.id });
@@ -779,7 +780,7 @@ export default {
       });
     },
     actionFilter() {
-      this.$axios.get("http://localhost:5000/api/job/actions").then((res) => {
+      this.$axios.get("/api/job/actions").then((res) => {
         let actions = [];
         res.data.actions.forEach(function (item) {
           actions.push({ text: item.name, value: item.id });
@@ -802,7 +803,7 @@ export default {
       return value === this.dateStop;
     },
     resultFilter() {
-      this.$axios.get("http://localhost:5000/api/job/results").then((res) => {
+      this.$axios.get("/api/job/results").then((res) => {
         let results = [];
         res.data.results.forEach(function (item) {
           results.push({ text: item.name, value: item.id });
@@ -830,9 +831,9 @@ export default {
       console.log("Dialog closed");
     },
 
-    rowClicked(row) {
-      this.toggleSelection(row.date_start);
-      console.log(row);
+    rowClicked(value, row) {
+      this.toggleSelection(value.job_id);
+      console.log(value);
     },
     toggleSelection(keyID) {
       if (this.selectedRows.includes(keyID)) {

@@ -80,7 +80,7 @@
       </v-list>
     </v-menu>
 
-    <template>
+    <template >
       <v-btn
         color="gray"
         elevation="0"
@@ -89,6 +89,7 @@
         class="mb-0"
         link
         to="/dhcp_leases"
+        v-show="$auth.$storage.getUniversal('user').role === 'admin' || $auth.$storage.getUniversal('user').role === 'tester'"
       >
         DHCP
       </v-btn>
@@ -157,16 +158,16 @@
       </v-list-item-subtitle>
     </v-list-item-content>
 
-    <v-divider class="mx-6" inset vertical v-if="$auth.loggedIn"></v-divider>
+    <v-divider class="mx-6" inset vertical></v-divider>
 
-    <v-list-item-content style="text-align: center" v-if="$auth.loggedIn">
-      <v-list-item-title style="font-size: 12px">
+    <v-list-item-content style="text-align: center">
+      <v-list-item-title style="font-size: 14px">
         <v-icon slot="icon" size="18"> mdi-account </v-icon
-        >{{ $auth.user.name }}</v-list-item-title
+        >{{ $auth.$storage.getUniversal('user')}}</v-list-item-title
       >
     </v-list-item-content>
 
-    <v-divider class="mx-6" inset vertical v-if="$auth.loggedIn"></v-divider>
+    <v-divider class="mx-6" inset vertical></v-divider>
 
     <template>
       <v-btn
@@ -175,14 +176,12 @@
         x-small
         tile
         class="mb-0"
-        link
-        to="/logout"
-        v-if="$auth.loggedIn"
+        @click="logout"
       >
         Logout
       </v-btn>
 
-      <v-divider class="mx-6" inset vertical v-if="$auth.loggedIn"></v-divider>
+      <v-divider class="mx-6" inset vertical></v-divider>
 
       <v-btn icon @click="darkMode">
         <v-icon>mdi-theme-light-dark</v-icon>
@@ -198,7 +197,7 @@ export default {
       clipped: false,
       drawer: false,
       fixed: false,
-      username: "testDAT",
+      // username: "testDAT",
       results: [
         {
           icon: "mdi-apps",
@@ -248,6 +247,9 @@ export default {
   },
 
   methods: {
+    async logout() {
+      await this.$auth.logout();
+    },
     darkMode: function () {
       this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
       localStorage.setItem("darkTheme", this.$vuetify.theme.dark.toString());
